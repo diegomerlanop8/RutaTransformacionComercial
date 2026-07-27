@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpina - Estrategia Comercial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        alpina: {
+                            blue: '#0057B8',      
+                            darkblue: '#1E255E',   
+                            magenta: '#E3000F',   
+                            yellow: '#FFC72C',
+                            green: '#009A44',     
+                            cyan: '#00A3E0',      
+                            orange: '#FF7900',    
+                            purple: '#830051',    
+                            cream: '#FFF9F2',
+                            soft: '#F4F7F9',
+                            lightblue: '#BCE6F4',
+                            lighterblue: '#DFF1F9'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body { overflow-x: hidden; }
+
+        .warm-bg {
+            background-color: #FBF7F2;
+            background-image:
+                radial-gradient(circle at 12% 8%, rgba(255, 186, 140, 0.30) 0%, transparent 42%),
+                radial-gradient(circle at 88% 92%, rgba(188, 230, 244, 0.28) 0%, transparent 45%),
+                linear-gradient(135deg, #FDF1E6 0%, #FBF6F0 45%, #F6F2ED 100%);
+        }
+
+        .bg-pattern {
+            background-image: radial-gradient(circle at 2px 2px, rgba(180, 110, 60, 0.07) 1px, transparent 0);
+            background-size: 32px 32px;
+        }
+
+        .clip-roof {
+            clip-path: polygon(7% 0, 93% 0, 100% 100%, 0% 100%);
+        }
+        
+        .clip-tag {
+            clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%);
+        }
+        
+        .clip-tag-palanca {
+            clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%);
+        }
+
+        /* Roadmap SVG y lineas */
+        .connection-line {
+            transition: all 0.3s ease;
+        }
+        .connection-line.active {
+            stroke-width: 4;
+            stroke-dasharray: 8 4;
+            animation: dash 1s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -12; }
+        }
+
+        .glow-pulse-subtle {
+            animation: glowPulseSubtle 2s infinite ease-in-out;
+        }
+        @keyframes glowPulseSubtle {
+            0% { box-shadow: 0 0 0 0 rgba(var(--tw-ring-color-rgb, 0, 163, 224), 0.4); transform: scale(1); }
+            50% { box-shadow: 0 0 0 15px rgba(var(--tw-ring-color-rgb, 0, 163, 224), 0); transform: scale(1.02); }
+            100% { box-shadow: 0 0 0 0 rgba(var(--tw-ring-color-rgb, 0, 163, 224), 0); transform: scale(1); }
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        [contenteditable="true"] {
+            outline: none;
+            transition: all 0.2s;
+        }
+        [contenteditable="true"]:hover {
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+        [contenteditable="true"]:focus {
+            background-color: rgba(255,255,255,0.9);
+            color: #1e293b;
+            box-shadow: 0 0 0 2px #38bdf8;
+            border-radius: 4px;
+        }
+        .text-white [contenteditable="true"]:focus {
+            color: #0f172a;
+        }
+
+    </style>
+</head>
+<body class="warm-bg font-sans text-slate-800 antialiased absolute inset-0 w-full h-full overflow-hidden bg-pattern selection:bg-alpina-cyan selection:text-white flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header id="mainHeader" class="transition-opacity duration-700 ease-in-out flex flex-col md:flex-row items-center justify-between bg-white/90 backdrop-blur-md py-1.5 px-4 shadow-sm border-b border-stone-200 fixed top-0 w-full z-50">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="openUniverse()">
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-stone-100 shrink-0 overflow-hidden">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpPPSrg-Y0zGOmLeu_657goxRclygFVLU2uw&s" alt="Alpina Logo" class="w-full h-full object-contain p-1" />
+            </div>
+            <div>
+                <h1 class="text-base font-extrabold text-alpina-blue leading-none">Alpina <span class="text-alpina-cyan">Estrategia Comercial</span></h1>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 w-full md:w-auto mt-1.5 md:mt-0">
+            <button onclick="openProjectsList()" class="flex items-center gap-1.5 bg-white border border-stone-200 text-alpina-blue font-bold py-1.5 px-3.5 rounded-full hover:bg-stone-50 transition-all shadow-sm text-xs shrink-0">
+                <i data-lucide="list-tree" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Listado de Proyectos</span><span class="sm:hidden">Listado</span>
+            </button>
+            <button onclick="openMatrizPriorizacion()" class="flex items-center gap-1.5 bg-white border border-stone-200 text-alpina-blue font-bold py-1.5 px-3.5 rounded-full hover:bg-stone-50 transition-all shadow-sm text-xs shrink-0">
+                <i data-lucide="grid-3x3" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Matriz de Priorización</span><span class="sm:hidden">Matriz</span>
+            </button>
+            <button disabled title="Próximamente" class="flex items-center gap-1.5 bg-stone-100 border border-stone-200 text-slate-400 font-bold py-1.5 px-3.5 rounded-full cursor-not-allowed text-xs shrink-0">
+                <i data-lucide="line-chart" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Seguimiento</span>
+            </button>
+            <div class="relative w-full md:w-80">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5"></i>
+                <input type="text" id="searchInput" placeholder="Buscar iniciativas..." class="w-full pl-9 pr-4 py-1.5 rounded-full bg-stone-100 border-transparent focus:bg-white focus:border-alpina-cyan focus:ring-2 focus:ring-alpina-cyan/20 outline-none transition-all shadow-inner text-xs font-medium" />
+            </div>
+        </div>
+    </header>
+
+    <div id="noResults" class="hidden fixed top-32 left-1/2 -translate-x-1/2 z-50 text-center py-5 px-8 bg-white/95 backdrop-blur-sm rounded-3xl border border-stone-200 text-slate-500 shadow-xl">
+        <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 text-slate-400"></i>
+        <p class="font-medium text-sm">Sin coincidencias.</p>
+    </div>
+
+    <!-- MAIN VIEW: THE STRATEGY HOUSE -->
+    <div id="viewUniverse" class="absolute inset-0 w-full h-full overflow-y-auto pt-[64px] pb-[16px] px-4 md:px-8 z-10 transition-all duration-700">
+        
+        <div class="max-w-5xl mx-auto w-full flex flex-col gap-2 relative z-20 mt-2">
+            
+            <!-- HERO INTRO: pantalla inicial centrada -->
+            <div id="heroIntro" class="flex flex-col items-center justify-center text-center min-h-[68vh] md:min-h-[76vh] transition-all duration-500 ease-out px-2">
+
+                <div class="relative mb-6 md:mb-8 cursor-pointer group/logo" onclick="revealStrategy()">
+                    <div class="absolute inset-0 rounded-full glow-pulse-subtle" style="--tw-ring-color-rgb: 0,87,184;"></div>
+                    <div class="relative w-24 h-24 md:w-32 md:h-32 rounded-full bg-white shadow-xl border border-stone-100 flex items-center justify-center group-hover/logo:scale-105 transition-transform duration-300">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpPPSrg-Y0zGOmLeu_657goxRclygFVLU2uw&s" alt="Alpina Logo" class="w-3/5 h-3/5 object-contain" />
+                    </div>
+                </div>
+
+                <span contenteditable="true" class="inline-block text-[0.65rem] md:text-xs font-bold tracking-[0.25em] text-alpina-blue/70 uppercase mb-3 md:mb-4">Estrategia Comercial 26–29</span>
+
+                <p contenteditable="true" class="text-lg md:text-2xl lg:text-3xl font-semibold text-slate-800 leading-snug max-w-3xl mx-auto">
+                    "Ser el <span class="text-purple-600">socio estratégico</span> de nuestros aliados, <span class="text-orange-600">disponibilizando los productos de Alpina</span>, como la <span class="text-yellow-600">mejor opción para el shopper</span>, <span class="text-green-600">haciendo que los elija.</span>"
+                </p>
+
+                <div class="w-12 h-px bg-stone-300 my-4 md:my-6"></div>
+
+                <p contenteditable="true" class="text-xs md:text-sm text-slate-500 leading-snug max-w-2xl mx-auto mb-8 md:mb-10">
+                    <span class="font-semibold text-slate-600">Objetivo · </span>Ser el motor del crecimiento sostenible de Alpina Colombia a través de la venta, maximizando el valor generado por cada aliado y punto de venta, apalancándonos en las capacidades de la compañía.
+                </p>
+
+                <button onclick="revealStrategy()" class="flex flex-col items-center gap-1.5 text-alpina-blue font-bold text-[0.65rem] md:text-xs uppercase tracking-widest group/cta">
+                    <span class="group-hover/cta:text-blue-700 transition-colors">Descubre las palancas</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 md:w-5 md:h-5 animate-bounce"></i>
+                </button>
+            </div>
+
+            <!-- REST: palancas y habilitadores, se revelan al continuar -->
+            <div id="restContent" class="flex flex-col overflow-hidden opacity-0 max-h-0 -translate-y-4 transition-all duration-700 ease-out">
+
+            <!-- Botón para volver a la pantalla de estrategia -->
+            <button onclick="collapseToHero()" class="flex items-center gap-1.5 text-alpina-blue/70 hover:text-alpina-blue font-semibold text-[0.65rem] uppercase tracking-wide transition-colors w-max mb-1">
+                <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i> Volver a la estrategia
+            </button>
+
+            <!-- Bloque centrado verticalmente: propósito + palancas + habilitadores -->
+            <div class="flex-1 flex flex-col justify-center gap-2 min-h-[62vh] md:min-h-[68vh]">
+
+            <!-- Propósito (recordatorio, como título) -->
+            <div class="text-center px-2 mb-1">
+                <span class="inline-block text-[0.55rem] md:text-[0.65rem] font-bold tracking-[0.25em] text-alpina-blue/70 uppercase mb-1.5">Propósito</span>
+                <p class="text-sm md:text-lg font-semibold text-slate-800 leading-snug max-w-3xl mx-auto">
+                    "Ser el <span class="text-purple-600">socio estratégico</span> de nuestros aliados, <span class="text-orange-600">disponibilizando los productos de Alpina</span>, como la <span class="text-yellow-600">mejor opción para el shopper</span>, <span class="text-green-600">haciendo que los elija.</span>"
+                </p>
+            </div>
+
+            <!-- Palancas (The 4 Pillars/Macroprojects) -->
+            <div class="flex items-stretch gap-2 md:gap-3 mt-1">
+                <div class="w-20 md:w-28 bg-stone-100 text-slate-500 flex flex-col items-center justify-center rounded-l-xl clip-tag-palanca shadow-sm p-2 shrink-0 border border-stone-200">
+                    <span contenteditable="true" class="font-semibold text-[0.65rem] text-center leading-tight uppercase tracking-wide">Palancas<br>estratégicas<br>comerciales</span>
+                </div>
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-2 md:gap-3">
+                    
+                    <!-- Columna 1 -->
+                    <div class="group cursor-pointer bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex flex-col relative h-full overflow-hidden" onclick="openDetail(1)">
+                        <div class="h-1 w-full bg-[#9333EA]"></div>
+                        <div class="p-3.5 flex flex-col flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-purple-50 text-[#9333EA] shrink-0">
+                                    <i data-lucide="target" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-[0.6rem] font-bold uppercase tracking-wider text-purple-600">Palanca 1</span>
+                            </div>
+                            <h3 contenteditable="true" class="font-bold text-xs md:text-sm text-slate-800 leading-tight mb-1.5">Socio Estratégico</h3>
+                            <p contenteditable="true" class="text-[0.7rem] text-slate-500 leading-snug flex-1 mb-3">
+                                Consolidarnos como el socio que entiende la estrategia del aliado y las misiones del shopper para potenciar la rotación, asegurando un negocio sostenible y de mutuo beneficio.
+                            </p>
+                            <div class="flex items-center gap-1 text-xs font-bold text-purple-600 group-hover:gap-2 transition-all">
+                                Ver proyectos <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna 2 -->
+                    <div class="group cursor-pointer bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex flex-col relative h-full overflow-hidden" onclick="openDetail(2)">
+                        <div class="h-1 w-full bg-[#F97316]"></div>
+                        <div class="p-3.5 flex flex-col flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-orange-50 text-[#F97316] shrink-0">
+                                    <i data-lucide="map" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-[0.6rem] font-bold uppercase tracking-wider text-orange-600">Palanca 2</span>
+                            </div>
+                            <h3 contenteditable="true" class="font-bold text-xs md:text-sm text-slate-800 leading-tight mb-1.5">Modelo de Llegada Dinámico</h3>
+                            <p contenteditable="true" class="text-[0.7rem] text-slate-500 leading-snug flex-1 mb-3">
+                                Desarrollar modelos de llegada productivos y flexibles que aseguren la disponibilidad de nuestros productos en el canal correcto y a la medida de cada aliado.
+                            </p>
+                            <div class="flex items-center gap-1 text-xs font-bold text-orange-600 group-hover:gap-2 transition-all">
+                                Ver proyectos <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna 3 -->
+                    <div class="group cursor-pointer bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex flex-col relative h-full overflow-hidden" onclick="openDetail(3)">
+                        <div class="h-1 w-full bg-[#EAB308]"></div>
+                        <div class="p-3.5 flex flex-col flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-yellow-50 text-[#CA8A04] shrink-0">
+                                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-[0.6rem] font-bold uppercase tracking-wider text-yellow-600">Palanca 3</span>
+                            </div>
+                            <h3 contenteditable="true" class="font-bold text-xs md:text-sm text-slate-800 leading-tight mb-1.5">Optimización de Portafolio</h3>
+                            <p contenteditable="true" class="text-[0.7rem] text-slate-500 leading-snug flex-1 mb-3">
+                                Actuar como el puente entre la estrategia de la compañía y la realidad de los canales, aportando al diseño de un portafolio que asegure la relevancia de cada producto de Alpina para el shopper.
+                            </p>
+                            <div class="flex items-center gap-1 text-xs font-bold text-yellow-600 group-hover:gap-2 transition-all">
+                                Ver proyectos <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna 4 -->
+                    <div class="group cursor-pointer bg-white rounded-2xl border border-stone-200/80 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex flex-col relative h-full overflow-hidden" onclick="openDetail(4)">
+                        <div class="h-1 w-full bg-[#22C55E]"></div>
+                        <div class="p-3.5 flex flex-col flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-green-50 text-[#16A34A] shrink-0">
+                                    <i data-lucide="bar-chart" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span class="text-[0.6rem] font-bold uppercase tracking-wider text-green-600">Palanca 4</span>
+                            </div>
+                            <h3 contenteditable="true" class="font-bold text-xs md:text-sm text-slate-800 leading-tight mb-1.5">Impacto en el PDV</h3>
+                            <p contenteditable="true" class="text-[0.7rem] text-slate-500 leading-snug flex-1 mb-3">
+                                Garantizar una presencia destacada en la categoría, implementando acciones que impulsen la compra y recompra del shopper, a través de un trade dinámico y con retorno medible.
+                            </p>
+                            <div class="flex items-center gap-1 text-xs font-bold text-green-600 group-hover:gap-2 transition-all">
+                                Ver proyectos <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Habilitadores -->
+            <div class="flex items-stretch gap-2 md:gap-3 mt-1">
+                <div class="w-20 md:w-28 bg-stone-100 text-slate-500 flex items-center justify-center rounded-l-xl clip-tag shadow-sm p-2 shrink-0 border border-stone-200">
+                    <span contenteditable="true" class="font-semibold text-xs text-center uppercase tracking-wide">Habilitadores</span>
+                </div>
+                <div class="flex-1 flex flex-col gap-2">
+                    <div class="group cursor-pointer bg-white rounded-xl border border-stone-200/80 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-3 px-5 py-2.5" onclick="openHabilitadorProjects('tech')">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-50 text-alpina-cyan shrink-0">
+                            <i data-lucide="database" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <span contenteditable="true" class="flex-1 text-xs md:text-sm font-semibold text-slate-700 leading-tight text-left">Inteligencia de Datos, Digitalización y Automatización</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-alpina-cyan shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
+                    </div>
+                    <div class="group cursor-pointer bg-white rounded-xl border border-stone-200/80 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-3 px-5 py-2.5" onclick="openHabilitadorProjects('genai')">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-cyan-50 text-alpina-cyan shrink-0">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        </div>
+                        <span contenteditable="true" class="flex-1 text-xs md:text-sm font-bold tracking-widest text-slate-700 leading-tight text-left">GEN A</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-alpina-cyan shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center mt-3 mb-2">
+                <button onclick="openProjectsList()" class="group relative flex items-center gap-2 bg-alpina-blue text-white font-bold py-2.5 px-7 rounded-full hover:bg-blue-800 transition-all shadow-lg shadow-blue-900/20 text-sm">
+                    <span class="absolute inset-0 rounded-full glow-pulse-subtle pointer-events-none" style="--tw-ring-color-rgb: 0,87,184;"></span>
+                    <i data-lucide="list-tree" class="w-4 h-4"></i> Listado de Proyectos
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+
+            </div>
+            <!-- /bloque centrado -->
+
+            </div>
+            <!-- /restContent -->
+            
+        </div>
+    </div>
+
+
+    <div id="viewDetail" class="hidden absolute inset-0 w-full h-full overflow-y-auto warm-bg bg-pattern z-40 pt-24 pb-20 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto">
+            <button onclick="openUniverse()" class="mb-6 group flex items-center gap-2 text-alpina-blue font-bold hover:text-blue-700 transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-stone-200">
+                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                Volver a la Estrategia
+            </button>
+            <div id="detailContentContainer"></div>
+        </div>
+    </div>
+
+
+    <div id="viewProjectsList" class="hidden absolute inset-0 w-full h-full overflow-y-auto warm-bg bg-pattern z-40 pt-24 pb-20 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto">
+            <button onclick="openUniverse()" class="mb-6 group flex items-center gap-2 text-alpina-blue font-bold hover:text-blue-700 transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-stone-200 w-max">
+                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                Volver a la Estrategia
+            </button>
+            <div class="bg-gradient-to-r from-blue-700 to-alpina-blue rounded-3xl p-6 md:p-10 mb-8 shadow-lg text-white">
+                <h2 class="font-extrabold text-3xl md:text-4xl">Listado de Proyectos</h2>
+                <p class="text-blue-100 mt-2 font-medium">Explora los proyectos organizados por subpalanca</p>
+            </div>
+            <div id="habilitadorFilterBanner" class="hidden items-center justify-between gap-3 bg-cyan-50 border border-cyan-100 text-alpina-blue rounded-2xl px-5 py-3 mb-5">
+                <div class="flex items-center gap-2 text-sm font-semibold">
+                    <i data-lucide="filter" class="w-4 h-4 text-alpina-cyan shrink-0"></i>
+                    <span>Filtrando por: <span id="habilitadorFilterLabel" class="font-bold"></span> · <span id="habilitadorFilterCount"></span></span>
+                </div>
+                <button onclick="clearHabilitadorFilter()" class="flex items-center gap-1 text-xs font-bold text-alpina-blue bg-white border border-stone-200 rounded-full px-3 py-1.5 hover:bg-stone-50 transition-colors shrink-0">
+                    <i data-lucide="x" class="w-3 h-3"></i> Quitar filtro
+                </button>
+            </div>
+            <div id="projectsContentContainer" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <div id="viewMatrizPriorizacion" class="hidden absolute inset-0 w-full h-full overflow-y-auto warm-bg bg-pattern z-40 pt-24 pb-20 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
+                <button onclick="openUniverse()" class="group flex items-center gap-2 text-alpina-blue font-bold hover:text-blue-700 transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-stone-200 w-max">
+                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                    Volver a la Estrategia
+                </button>
+                <button onclick="resetMatrizPriorizacion()" class="group flex items-center gap-2 text-slate-500 font-bold hover:text-alpina-blue transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-stone-200 w-max">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4 group-hover:-rotate-45 transition-transform"></i>
+                    Restablecer a la calificación sugerida
+                </button>
+            </div>
+            <div class="bg-gradient-to-r from-indigo-700 to-alpina-blue rounded-3xl p-6 md:p-10 mb-8 shadow-lg text-white">
+                <h2 class="font-extrabold text-3xl md:text-4xl">Matriz de Priorización</h2>
+                <p class="text-blue-100 mt-2 font-medium">Impacto vs. Complejidad — arrastra cada número para calibrar la priorización sugerida</p>
+            </div>
+
+            <div id="matrizPdfArea" class="bg-white rounded-3xl border border-stone-200 shadow-sm p-4 md:p-8">
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <div class="lg:w-80 shrink-0 border border-stone-200 rounded-2xl p-3 max-h-[560px] overflow-y-auto custom-scrollbar" id="matrizListado"></div>
+                    <div class="flex-1 flex items-center justify-center pt-2 pb-8 pl-2 pr-8 md:pr-12">
+                        <div id="matrizGridWrapper" class="relative select-none w-full" style="aspect-ratio: 1/1; max-width: 640px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-6">
+                <button onclick="downloadMatrizPDF(event)" class="flex items-center gap-2 bg-alpina-blue text-white font-bold py-2.5 px-6 rounded-full hover:bg-blue-800 transition-all shadow-sm">
+                    <i data-lucide="download" class="w-4 h-4"></i> Descargar priorización en PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+        const palancasData = [
+    {
+        "numero": 1,
+        "nombre": "Socio Estratégico",
+        "hex": "#9333EA",
+        "icon": "target",
+        "gradient": "from-purple-800 to-purple-600",
+        "subpalancas": [
+            {
+                "nombre": "TENDERO COMO SOCIO COMERCIAL #1",
+                "proyectos": [
+                    {
+                        "nombre": "Beneficios Compi",
+                        "descripcion": "Construir un programa de beneficios continuos que posicione a Alpina como el proveedor #1 del tendero, generando lealtad, recompra y ampliación del portafolio.",
+                        "responsable": "Trade Marketing",
+                        "dependencias": [
+                            "Segmentación Inteligente de Clientes y Canales"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Plan de tenderos exclusivos",
+                                "descripcion": "Plan con beneficios exclusivos y mancha azul potenciada que aumenten su lealtad a Alpina."
+                            },
+                            {
+                                "nombre": "Plan de Puntos y Recompensas",
+                                "descripcion": "Plataforma de lealtad para tiendas y panaderías (fase 1) y minimercados (fase 2)."
+                            },
+                            {
+                                "nombre": "Microcrédito comercial con KPIs de adopción y repago",
+                                "descripcion": "Ofrecer crédito comercial al tendero con métricas claras de uso y cumplimiento de pago."
+                            },
+                            {
+                                "nombre": "Medición NPS y satisfacción del tendero",
+                                "descripcion": "Medir de forma recurrente qué tan satisfecho está el tendero con la relación comercial."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT"
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "ALIADOS ESTRATÉGICOS",
+                "proyectos": [
+                    {
+                        "nombre": "HDV Unificada y Plataforma Colaborativa",
+                        "descripcion": "Documentar una estrategia 360° por tipología de cliente e integrarla en una plataforma colaborativa compartida con cadenas para planes comerciales conjuntos.",
+                        "responsable": "GTM · Canal Moderno (GCM) · TI / Data",
+                        "dependencias": [
+                            "Alistamiento de la Data y Consolidación"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "HDV por cliente — acuerdos comerciales y Key People por cadena",
+                                "descripcion": "Documentar por cadena los acuerdos vigentes y las personas clave de decisión."
+                            },
+                            {
+                                "nombre": "Estrategia 360 por cliente",
+                                "descripcion": "Entender la estrategia del cliente para establecer expectativas, planes e indicadores comunes que nos permitan hacer seguimiento al desempeño de la cadena."
+                            },
+                            {
+                                "nombre": "Plan colaborativo de servicio (NS + Agotado)",
+                                "descripcion": "Trabajar junto a la cadena para mejorar nivel de servicio y reducir agotados."
+                            },
+                            {
+                                "nombre": "Estrategia 360° por tipología y formato de canal",
+                                "descripcion": "Definir una estrategia comercial diferenciada según el tipo y formato de cada canal."
+                            },
+                            {
+                                "nombre": "Capitanía de categoría",
+                                "descripcion": "Asumir el liderazgo de categoría ante la cadena, guiando surtido y exhibición."
+                            },
+                            {
+                                "nombre": "Construcción de planes comerciales 360 conjuntos con cadenas principales",
+                                "descripcion": "Co-crear planes comerciales integrales con las cadenas más relevantes del canal moderno."
+                            },
+                            {
+                                "nombre": "Plataforma colaborativa con clientes canal moderno",
+                                "descripcion": "Habilitar un espacio digital compartido de datos y planes con clientes clave."
+                            },
+                            {
+                                "nombre": "Levantamiento de información de clientes en tiempo real",
+                                "descripcion": "Capturar información actualizada de clientes para decisiones comerciales más ágiles."
+                            },
+                            {
+                                "nombre": "Rentabilidad en la gestión de clientes – visibilidad de retorno por cliente",
+                                "descripcion": "Dar visibilidad clara de cuánto retorno genera cada cliente para priorizar mejor."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "EXCELENCIA OPERATIVA",
+                "proyectos": [
+                    {
+                        "nombre": "Modelo de Excelencia Comercial",
+                        "descripcion": "Definir qué hace el asesor en TAT y SE — su rol, rutinas y ABC — con capacitación estructurada y gestión de agotados como eje crítico de la ejecución en PDV.",
+                        "responsable": "GTM",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Rol del asesor — ABC del vendedor + capacitación",
+                                "descripcion": "Definir funciones y rutinas del asesor comercial, con capacitación estructurada de soporte."
+                            },
+                            {
+                                "nombre": "Gestión de agotados y medición de ejecución en PDV",
+                                "descripcion": "Detectar y corregir agotados midiendo la ejecución real en el punto de venta."
+                            },
+                            {
+                                "nombre": "Priorización de SKUs críticos, ajuste de Mínimos/Máximos y temporadas",
+                                "descripcion": "Ajustar mínimos y máximos de inventario según SKUs críticos y estacionalidad."
+                            },
+                            {
+                                "nombre": "Disciplina comercial diaria de ejecución en campo",
+                                "descripcion": "Instaurar rutinas diarias que aseguren una ejecución comercial consistente en el punto de venta."
+                            },
+                            {
+                                "nombre": "Disciplina operativa – auditoría y método",
+                                "descripcion": "Auditar y estandarizar la operación comercial en el punto de venta."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Superetes",
+                            "Moderno"
+                        ]
+                    },
+                    {
+                        "nombre": "Herramientas de Gestión Comercial",
+                        "descripcion": "Estandarizar la ejecución comercial y capturar el estado del PDV en tiempo real, tanto en TAT como en canal moderno, sin depender exclusivamente de visitas manuales.",
+                        "responsable": "GTM · TI / Data",
+                        "dependencias": [
+                            "Alistamiento de la Data y Consolidación",
+                            "Modelo de Excelencia Comercial"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Modelo de gestión comercial diario y seguimiento para líderes",
+                                "descripcion": "Dar a los líderes comerciales un modelo diario de seguimiento a su equipo."
+                            },
+                            {
+                                "nombre": "Sistema de seguimiento comercial por coordinadores",
+                                "descripcion": "Permitir a los coordinadores hacer seguimiento estructurado a la gestión comercial de su zona."
+                            },
+                            {
+                                "nombre": "Auditoría de ejecución en PDV desde herramienta digital con captura fotográfica",
+                                "descripcion": "Auditar la ejecución en tienda con evidencia fotográfica capturada desde una app."
+                            },
+                            {
+                                "nombre": "Digitalización de la disciplina operativa en superetes",
+                                "descripcion": "Llevar a digital el control y seguimiento de la operación en superetes."
+                            },
+                            {
+                                "nombre": "Sensórica comercial para lectura viva de tienda",
+                                "descripcion": "Usar sensores para monitorear en tiempo real lo que ocurre en el punto de venta."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Superetes"
+                        ]
+                    },
+                    {
+                        "nombre": "Gestión Operativa y Excelencia Logística",
+                        "descripcion": "Definir los roles y responsabilidades en la cadena de distribución y entrega, y dotar al equipo de herramientas de seguimiento del back con trazabilidad y eficiencia.",
+                        "responsable": "GTM",
+                        "dependencias": [
+                            "Modelo de Atención por Canal, Tipología  y Segmentación"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Definición del rol operativo en distribución y entrega por canal",
+                                "descripcion": "Aclarar responsabilidades operativas de distribución y entrega según cada canal."
+                            },
+                            {
+                                "nombre": "Herramientas de seguimiento del back — pedidos, entregas, incidencias",
+                                "descripcion": "Dar visibilidad y trazabilidad a pedidos, entregas e incidencias logísticas."
+                            },
+                            {
+                                "nombre": "Modelo de trazabilidad de la operación logística",
+                                "descripcion": "Hacer trazable cada etapa de la operación logística de punta a punta."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "numero": 2,
+        "nombre": "Modelo de Llegada Dinámico",
+        "hex": "#F97316",
+        "icon": "map",
+        "gradient": "from-orange-600 to-orange-500",
+        "subpalancas": [
+            {
+                "nombre": "RED ÓPTIMA DE ATENCIÓN",
+                "proyectos": [
+                    {
+                        "nombre": "Rediseño Estratégico de Canales",
+                        "descripcion": "Rediseñar el modelo de distribución y llegada al cliente, optimizando la red de nodos según las capacidades internas e indirectas reales de Alpina.",
+                        "responsable": "GTM",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Modelo de leches y migración autoventa → preventa",
+                                "descripcion": "Migrar el canal de leches de autoventa hacia un esquema de preventa."
+                            },
+                            {
+                                "nombre": "Modelo unificado de cobertura multi-canal con criterios de costo de servir",
+                                "descripcion": "Definir un modelo de cobertura único que considere el costo de atender cada canal."
+                            },
+                            {
+                                "nombre": "Minimercados, Plataformas y Cross Docking como modelos complementarios",
+                                "descripcion": "Incorporar minimercados, plataformas y cross docking como rutas de llegada complementarias."
+                            },
+                            {
+                                "nombre": "Diseñar nuevo modelo de llegada canal moderno",
+                                "descripcion": "Rediseñar cómo Alpina llega y distribuye al canal moderno."
+                            },
+                            {
+                                "nombre": "Zonificación dinámica de red y modelo de llegada",
+                                "descripcion": "Ajustar dinámicamente las zonas de reparto según demanda y capacidad de la red."
+                            },
+                            {
+                                "nombre": "Rediseño de intermediarios hacía esquema multicanal directo- indirecto",
+                                "descripcion": "Reestructurar la red de intermediarios combinando atención directa e indirecta."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Moderno"
+                        ]
+                    },
+                    {
+                        "nombre": "Modelo de Atención por Canal, Tipología  y Segmentación",
+                        "descripcion": "Definir cómo Alpina opera en el punto de venta por canal y tipología, actualizando el universo de clientes con criterios de potencial y formato.",
+                        "responsable": "GTM",
+                        "dependencias": [
+                            "Segmentación Inteligente de Clientes y Canales"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Marco de gobierno GTM con alcance, RACI y fronteras funcionales",
+                                "descripcion": "Establecer roles, responsables y límites claros para la operación de GTM."
+                            },
+                            {
+                                "nombre": "5D - 48H — eficiencias operativas de base",
+                                "descripcion": "Optimizar tiempos operativos base del ciclo comercial en cinco días y 48 horas."
+                            },
+                            {
+                                "nombre": "Modelo de operation en PDV por canal y tipología",
+                                "descripcion": "Definir cómo debe operar Alpina en el punto de venta según canal y tipología."
+                            },
+                            {
+                                "nombre": "Conveniencia — modelo de atención diferenciado para este canal",
+                                "descripcion": "Crear un modelo de atención propio para el canal de conveniencia."
+                            },
+                            {
+                                "nombre": "Cuadro único de desempeño Comercial para medir efectividad por canal",
+                                "descripcion": "Consolidar en un solo tablero el desempeño comercial de cada canal."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Superetes"
+                        ]
+                    },
+                    {
+                        "nombre": "Desarrollo de Nuevos Modelos de Llegada",
+                        "descripcion": "Desarrollar el modelo óptimo para canales emergentes y categorías que requieren una forma diferenciada de llegada, con la evolución digital como pilar central.",
+                        "responsable": "GTM · Marketing",
+                        "dependencias": [
+                            "Modelo de Atención por Canal, Tipología  y Segmentación",
+                            "Segmentación Inteligente de Clientes y Canales"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Gobernanza de nuevos canales — criterios de entrada, pilotos y escalamiento",
+                                "descripcion": "Definir cómo evaluar, pilotear y escalar la entrada a canales emergentes."
+                            },
+                            {
+                                "nombre": "Nutrición Avanzada — modelo de llegada estratégico del canal",
+                                "descripcion": "Diseñar el modelo de llegada específico para el portafolio de Nutrición Avanzada."
+                            },
+                            {
+                                "nombre": "GTM especializado para portafolios de cuidado y categorías emergentes",
+                                "descripcion": "Crear un esquema de llegada especializado para categorías de cuidado y nuevas líneas."
+                            },
+                            {
+                                "nombre": "Framework de exploración en nuevos medios y canales digitales",
+                                "descripcion": "Establecer una metodología para explorar y validar nuevos canales digitales."
+                            },
+                            {
+                                "nombre": "Playbook de expansión a nuevos canales",
+                                "descripcion": "Documentar una guía replicable para expandirse a canales no tradicionales."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT"
+                        ]
+                    },
+                    {
+                        "nombre": "Atención Digital",
+                        "descripcion": "Definir el enfoque estratégico comercial digital según la segmentación y las necesidades del cliente y del territorio, evolucionando la relación hacia modelos de atención digital.",
+                        "responsable": "GTM · TI",
+                        "dependencias": [
+                            "Modelo de Atención por Canal, Tipología  y Segmentación",
+                            "Segmentación Inteligente de Clientes y Canales"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Definición del enfoque estratégico comercial digital por segmento y territorio",
+                                "descripcion": "Adaptar la estrategia comercial digital según el segmento y territorio del cliente."
+                            },
+                            {
+                                "nombre": "Implementación del modelo de atención digital en canales piloto",
+                                "descripcion": "Poner en marcha el modelo de atención digital en canales seleccionados como piloto."
+                            },
+                            {
+                                "nombre": "Evolución con datos de comportamiento real del cliente por canal",
+                                "descripcion": "Ajustar el modelo de atención con datos reales de comportamiento del cliente."
+                            },
+                            {
+                                "nombre": "Cashless: migración a pagos digitales",
+                                "descripcion": "Migrar la operación hacia medios de pago digitales, reduciendo la dependencia del efectivo en la relación con el tendero."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT"
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "SEGMENTACIÓN ESTRATÉGICA DE CANALES",
+                "proyectos": [
+                    {
+                        "nombre": "Segmentación Inteligente de Clientes y Canales",
+                        "descripcion": "Construir un modelo de segmentación unificado por potencial, comportamiento y rentabilidad de canal que sirva de base para decisiones de cobertura, portafolio y ejecución.",
+                        "responsable": "GTM · Trade Marketing · Data / TI",
+                        "dependencias": [
+                            "Alistamiento de la Data y Consolidación"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Segmentación avanzada de clientes y territorios TAT",
+                                "descripcion": "Segmentar clientes y territorios TAT con criterios avanzados de potencial y comportamiento."
+                            },
+                            {
+                                "nombre": "Segmentación omnicanal co-liderada con Mercadeo",
+                                "descripcion": "Construir la segmentación de clientes junto con Mercadeo, válida para todos los canales."
+                            },
+                            {
+                                "nombre": "Arquitectura 360° de datos de cliente, canal y shopper",
+                                "descripcion": "Integrar en una sola arquitectura los datos de cliente, canal y shopper."
+                            },
+                            {
+                                "nombre": "Inteligencia combinada comercial y mercadeo para decisiones Go to Market",
+                                "descripcion": "Cruzar datos comerciales y de mercadeo para decisiones de Go to Market."
+                            },
+                            {
+                                "nombre": "Datos históricos y externos integrados en la segmentación de clientes",
+                                "descripcion": "Enriquecer la segmentación de clientes con datos históricos y fuentes externas."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "MODELO DE PRODUCTIVIDAD COMERCIAL",
+                "proyectos": [
+                    {
+                        "nombre": "Estructuras Comerciales y Estandarización Operativa",
+                        "descripcion": "Entender la productividad de los canales y el modo de cobertura y gobierno de los aliados, garantizando la disciplina y productividad del equipo de calle.",
+                        "responsable": "GTM · Talento",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Revisión de productividad de la estructura comercial actual",
+                                "descripcion": "Evaluar qué tan productiva es la estructura comercial vigente."
+                            },
+                            {
+                                "nombre": "Compensación comercial alineada a prioridades GTM",
+                                "descripcion": "Ajustar los esquemas de compensación para que reflejen las prioridades de GTM."
+                            },
+                            {
+                                "nombre": "Alineación de incentivos para potencializar el pedido sugerido",
+                                "descripcion": "Alinear incentivos comerciales para impulsar el uso del pedido sugerido."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT"
+                        ]
+                    },
+                    {
+                        "nombre": "Ruteo Dinámico y Operación Logística Ágil",
+                        "descripcion": "Optimizar cómo se mueve el distribuidor-servicio y cómo fluyen los pedidos entre canales para maximizar cobertura, reducir costos y eliminar reproceso operativo.",
+                        "responsable": "GTM · Operaciones",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Flujo end-to-end distribuidor–tendero con conciliación ágil",
+                                "descripcion": "Conectar todo el flujo distribuidor-tendero con conciliación rápida de pedidos y pagos."
+                            },
+
+                            {
+                                "nombre": "Ruteo comercial dinámico por zonificación y valor",
+                                "descripcion": "Ajustar dinámicamente las rutas comerciales según zonificación y valor del cliente."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "numero": 3,
+        "nombre": "Optimización de Portafolio",
+        "hex": "#CA8A04",
+        "icon": "layers",
+        "gradient": "from-yellow-600 to-yellow-500",
+        "subpalancas": [
+            {
+                "nombre": "OBPPC — PORTAFOLIO, PRECIO Y CANAL",
+                "proyectos": [
+                    {
+                        "nombre": "Plan 100",
+                        "descripcion": "Plan de optimización del portafolio actual que identifica y elimina SKUs que no son relevantes para la estrategia de las marcas, mejorando foco y rentabilidad.",
+                        "responsable": "Trade Marketing",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Identificación de SKUs de bajo desempeño y baja relevancia estratégica",
+                                "descripcion": "Detectar SKUs con bajo desempeño y poca relevancia para la estrategia de portafolio."
+                            },
+                            {
+                                "nombre": "Depuración del portafolio activo por criterio de rentabilidad y estrategia de marca",
+                                "descripcion": "Retirar del portafolio activo los SKUs poco rentables o desalineados con la marca."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    },
+                    {
+                        "nombre": "Segmentación Portafolio Correcto (región + canal + cliente)",
+                        "descripcion": "Definir el portafolio ideal (marcas, SKUs) para cada región/cluster del país y canal de venta, sirviendo como base de información para la ejecución OBPPC.",
+                        "responsable": "Trade Marketing · GTM",
+                        "dependencias": [
+                            "Segmentación Inteligente de Clientes y Canales",
+                            "Alistamiento de la Data y Consolidación"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Comité de portafolio óptimo con foco en retorno",
+                                "descripcion": "Crear un comité que decida el portafolio óptimo priorizando el retorno."
+                            },
+                            {
+                                "nombre": "Portafolio ideal automatizado por región, canal y cliente",
+                                "descripcion": "Automatizar la definición del portafolio ideal por región, canal y cliente."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    },
+                    {
+                        "nombre": "Motor de Pricing Inteligente Omnicanal",
+                        "descripcion": "Motor que recomienda precios y mecánicas por canal, cliente y zona en tiempo casi real, con criterios de rentabilidad y estrategia para maximizar el valor capturado.",
+                        "responsable": "Revenue Management",
+                        "dependencias": [
+                            "Alistamiento de la Data y Consolidación"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Gobierno de pricing omnicanal con Revenue y GTM — proceso y RACI",
+                                "descripcion": "Definir el proceso y responsables del gobierno de precios entre Revenue y GTM."
+                            },
+                            {
+                                "nombre": "Pricing contextual con variables socioeconómicas y mecánicas promo",
+                                "descripcion": "Ajustar precios y promociones según variables socioeconómicas del contexto."
+                            },
+                            {
+                                "nombre": "Motor IA de pricing multicanal con gobierno de Revenue",
+                                "descripcion": "Construir un motor de IA que recomiende precios por canal bajo gobierno de Revenue."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "GESTIÓN DE DEVOLUCIONES Y DISPONIBILIDAD",
+                "proyectos": [
+                    {
+                        "nombre": "Gestión de Devoluciones Corto Plazo",
+                        "descripcion": "Organizar la metodología de seguimiento y gobierno para controlar las devoluciones de producto en el corto plazo, como paso previo al modelo predictivo.",
+                        "responsable": "GTM · TI / Data · Planeación",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ],
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Organización de metodología de seguimiento y gobierno",
+                                "descripcion": "Establecer una dinámica que nos permita tener un mejor control y accionar planes para controlar las devoluciones de producto."
+                            }
+                        ],
+                        "tipo": "Funcional"
+                    },
+                    {
+                        "nombre": "Modelo Predictivo de Devoluciones y S&OP",
+                        "descripcion": "Conectar la información comercial al ciclo S&OP para anticipar demanda, reducir agotados, vencimientos y devoluciones por medio de un modelo predictivo integrado.",
+                        "responsable": "GTM · TI / Data · Planeación",
+                        "dependencias": [
+                            "Alistamiento de la Data y Consolidación",
+                            "Gestión de Devoluciones Corto Plazo"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Integración Comercial-S&OP",
+                                "descripcion": "Conectar Comercial con S&OP mediante un canal único de pedidos y una gobernanza clara de quién aporta cada dato."
+                            },
+                            {
+                                "nombre": "Visibilidad y sincronización de inventarios",
+                                "descripcion": "Sincronizar la previsión de demanda, inventarios y producción, con visibilidad predictiva y un Pareto de clientes clave."
+                            },
+                            {
+                                "nombre": "Modelo Predictivo de Riesgo de Devoluciones",
+                                "descripcion": "Anticipar con analítica qué pedidos tienen mayor riesgo de devolución."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "DESARROLLO DE CATEGORÍAS FOCO",
+                "proyectos": [
+                    {
+                        "nombre": "Portafolio Actual — Categorías Foco",
+                        "descripcion": "Acelerar el crecimiento de las categorías estratégicas del portafolio actual en cada canal, asegurando presencia y ejecución diferenciada por formato.",
+                        "responsable": "Canales · Trade Marketing",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "TAT: Quesos + Cuidado",
+                                "descripcion": "Priorizar el desarrollo de Quesos y Cuidado dentro del canal TAT."
+                            },
+                            {
+                                "nombre": "Moderno: Cuidado + Cocina",
+                                "descripcion": "Priorizar el desarrollo de Cuidado y Cocina dentro del canal moderno."
+                            },
+                            {
+                                "nombre": "Superetes: Cuidado + Cocina + Habilitadores",
+                                "descripcion": "Priorizar Cuidado, Cocina y capacidades habilitadoras dentro de superetes."
+                            },
+                            {
+                                "nombre": "Planes de activación diferenciados por canal y tipología",
+                                "descripcion": "Diseñar activaciones de portafolio distintas según canal y tipología de cliente."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    },
+                    {
+                        "nombre": "Nutrición Avanzada",
+                        "descripcion": "Estrategia integral para la tangibilización del nuevo portafolio de Nutrición Avanzada, incluyendo canales estratégicos, portafolio óptimo por tipología y plan de comunicación en PDV.",
+                        "responsable": "GTM · Trade Marketing",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Definición y desarrollo de nuevos canales y modelos de llegada",
+                                "descripcion": "Para poder habilitar los productos de Nutrición Avanzada."
+                            },
+                            {
+                                "nombre": "Definición de cómo jugará la Nutrición Avanzada",
+                                "descripcion": "En nuestros canales actuales."
+                            },
+                            {
+                                "nombre": "Plan de category y trade diferenciado",
+                                "descripcion": "Que nos permita guiar al shopper en los mundos funcionales."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "numero": 4,
+        "nombre": "Impacto en el PDV",
+        "hex": "#16A34A",
+        "icon": "bar-chart",
+        "gradient": "from-green-600 to-green-500",
+        "subpalancas": [
+            {
+                "nombre": "SHOPPER INSIGHTS",
+                "proyectos": [
+                    {
+                        "nombre": "Shopper LAB: Inteligencia del Shopper y Activación Digital",
+                        "descripcion": "Construir una plataforma de conocimiento profundo del shopper que entregue insights accionables para influir en la decisión de compra.",
+                        "responsable": "Trade Marketing",
+                        "dependencias": [
+                            "Alistamiento de la Data y Consolidación"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Visual del shopper por cadenas — ocasiones, precios, share",
+                                "descripcion": "Entender al shopper por cadena según ocasión de consumo, precio y participación."
+                            },
+                            {
+                                "nombre": "Automatización de activación digital de productos — retail media",
+                                "descripcion": "Automatizar activaciones de producto usando medios omnicanales dentro del retail."
+                            },
+                            {
+                                "nombre": "Ecosistema de aprendizaje continuo con datos del comprador",
+                                "descripcion": "Aprender continuamente del comportamiento del comprador para ajustar la estrategia."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "LIDERAZGO Y VISIBILIDAD EN PDV",
+                "proyectos": [
+                    {
+                        "nombre": "Mancha Azul",
+                        "descripcion": "Evolucionar el plan de visibilidad always-on con bloques y visibilidad de marca que dominen la categoría en el punto de venta.",
+                        "responsable": "Trade Marketing",
+                        "dependencias": [
+                            "Segmentación Inteligente de Clientes y Canales",
+                            "Socio Estratégico"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Desarrollo de Mundos en Canal Moderno",
+                                "descripcion": "Agrupar productos alrededor de las plataformas y momentos de consumo."
+                            },
+                            {
+                                "nombre": "Plan Tiendas Perfectas TAT",
+                                "descripcion": "Para recuperar la presencia de la mancha azul de Alpina en las tiendas."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    },
+                    {
+                        "nombre": "Guardianes de la Nevera",
+                        "descripcion": "Plan de blindaje de share of shelf que garantice que cada nevera sea un motor de crecimiento de venta para Alpina, con planogramas correctos y ejecución consistente.",
+                        "responsable": "Trade Marketing",
+                        "dependencias": [
+                            "Segmentación Inteligente de Clientes y Canales",
+                            "Socio Estratégico"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Plan Blindaje Share of Shelf",
+                                "descripcion": "Implementación de planogramas segmentados por canal, cadena y tipo de nevera para comunicar de manera clara a la FDV."
+                            },
+                            {
+                                "nombre": "Academia Guardianes de la Nevera",
+                                "descripcion": "Plan de capacitación continua de blindaje de neveras en nuestros puntos de venta."
+                            },
+                            {
+                                "nombre": "Centro de Inteligencia GDLN",
+                                "descripcion": "Centro de inteligencia y medición continua que nos permita reforzar y tomar decisiones frente a defender nuestras neveras."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "FIDELIZACIÓN FDV",
+                "proyectos": [
+                    {
+                        "nombre": "FUA",
+                        "descripcion": "Plan de fidelización para la fuerza de ventas que construye lealtad y conexión, impulsando la colocación y rotación continua del portafolio Alpina.",
+                        "responsable": "Trade Marketing",
+                        "dependencias": [
+                            "Alistamiento de la Data y Consolidación",
+                            "Automatización de Procesos Operativos"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Alpiolimpiadas",
+                                "descripcion": "Continuar fortaleciendo nuestro concurso de fidelización Alpiolimpiadas."
+                            },
+                            {
+                                "nombre": "FUA",
+                                "descripcion": "Evolución de la plataforma de puntos y concursos."
+                            },
+                            {
+                                "nombre": "Medición Automatizada",
+                                "descripcion": "Automatización de la liquidación de incentivos y puntos."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "TRADE DINÁMICO (ROI)",
+                "proyectos": [
+                    {
+                        "nombre": "Gobierno y Planeación de Dinámicas",
+                        "descripcion": "Estandarizar la planeación, aprobación y medición de dinámicas comerciales con criterios claros de ROI y roles definidos, alineando Comercial y Mercadeo.",
+                        "responsable": "Trade Marketing",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Planeación objetiva y estandarizada de dinámicas comerciales",
+                                "descripcion": "Estandarizar la forma de planear dinámicas comerciales con criterios objetivos, incluyendo planeación y unificación de formatos."
+                            },
+                            {
+                                "nombre": "Gobernanza clara de roles para dinámicas — RACI operativo",
+                                "descripcion": "Definir un RACI claro para la ejecución de dinámicas comerciales."
+                            },
+                            {
+                                "nombre": "Marco único de KPIs Comercial–Mercadeo",
+                                "descripcion": "Unificar los indicadores que comparten Comercial y Mercadeo."
+                            },
+                            {
+                                "nombre": "Modelo de ROI de trade con políticas de activación",
+                                "descripcion": "Medir el retorno del trade marketing y definir políticas claras de activación, incluyendo un modelo de ROI base."
+                            },
+                            {
+                                "nombre": "Planeación comercial con reglas de valor",
+                                "descripcion": "Criterios formales de inversión comercial (movida desde Trade Mix Modelling)."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    },
+                    {
+                        "nombre": "Plataforma de Ejecución y Medición de Trade",
+                        "descripcion": "Centralizar ejecución, seguimiento y liquidación de trade en una plataforma única con visibilidad real, eliminando el reproceso manual y acelerando el cierre de ciclos.",
+                        "responsable": "Trade Marketing  ·  TI / Data  ·  Finanzas",
+                        "dependencias": [
+                            "Alistamiento de la Data y Consolidación"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Automatización analítica de cierre y control presupuestal",
+                                "descripcion": "Automatizar el análisis de cierre y control del presupuesto de trade."
+                            },
+                            {
+                                "nombre": "Suite de ejecución y tableros de trade",
+                                "descripcion": "Ejecutar y medir el trade en tiempo real, con un tablero E2E por cliente, canal, subcanal y visibilidad de sellout tienda a tienda."
+                            },
+                            {
+                                "nombre": "Plataforma integrada CRM-Finanzas y digitalización comercial",
+                                "descripcion": "Conectar CRM y Finanzas para el ciclo promocional y digitalizar el flujo comercial del canal moderno."
+                            },
+                            {
+                                "nombre": "Calculadora de inversión comercial",
+                                "descripcion": "Basada en retorno (movida desde Trade Mix Modelling)."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    },
+                    {
+                        "nombre": "Trade Mix Modelling",
+                        "descripcion": "Evolucionar la inversión de trade hacia un modelo predictivo que recomienda dónde y cuánto invertir, midiendo el retorno real de cada activación comercial.",
+                        "responsable": "Trade Marketing  ·  Revenue Management  ·  TI / Data",
+                        "dependencias": [
+                            "Alistamiento de la Data y Consolidación",
+                            "Gobierno y Planeación de Dinámicas",
+                            "Plataforma de Ejecución y Medición de Trade"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Modelo de Entendimiento de Retorno",
+                                "descripcion": "Por acción, canal y marca, que nos permita entender el retorno de inversión de todo lo que hacemos."
+                            }
+                        ],
+                        "tipo": "Transformacional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "numero": 5,
+        "nombre": "Habilitador",
+        "hex": "#0EA5E9",
+        "icon": "database",
+        "gradient": "from-sky-600 to-cyan-500",
+        "subpalancas": [
+            {
+                "nombre": "INTEGRACIÓN DE DATOS Y VISIBILIDAD",
+                "proyectos": [
+                    {
+                        "nombre": "Alistamiento de la Data y Consolidación",
+                        "descripcion": "Alistar y consolidar la data comercial en una sola capa confiable, con trazabilidad completa a lo largo de toda la cadena de valor.",
+                        "responsable": "TI / Data · VP Transformación",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ],
+                        "tipo": "Transformacional",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Centralización de datos comerciales",
+                                "descripcion": "Reunir en un solo lugar los datos comerciales dispersos hoy en varios sistemas."
+                            },
+                            {
+                                "nombre": "Plataforma ONE integral de dinámicas comerciales",
+                                "descripcion": "Centralizar en una sola plataforma la gestión de todas las dinámicas comerciales, incluyendo sell-out y shopper del canal moderno."
+                            },
+                            {
+                                "nombre": "Gobierno de datos y portal comercial integrado",
+                                "descripcion": "Unificar la experiencia digital de los stakeholders en cada una de sus interacciones digitales, con visibilidad de información insightful y evolución tecnológica del portal comercial."
+                            },
+                            {
+                                "nombre": "Malla de datos integrada Comercial-S&OP-Mercadeo",
+                                "descripcion": "Integrar los datos de Comercial, S&OP y Mercadeo en una malla común, con automatización de reportes y hubs de señales por canal."
+                            },
+                            {
+                                "nombre": "Centralización de inventarios, sell-in y sell-out",
+                                "descripcion": "Consolidar inventarios de cadenas, CEDIs y datos de sell-out, con trazabilidad completa de la cadena de valor."
+                            },
+                            {
+                                "nombre": "Entendimiento del estado actual de las fuentes de datos",
+                                "descripcion": "Evaluar la calidad y madurez de cada fuente de datos existente para soportar mejores decisiones de negocio."
+                            },
+                            {
+                                "nombre": "Mapeo de datos adicionales en otras áreas",
+                                "descripcion": "Entender qué datos existen en otras áreas de la compañía y su estado de madurez, para integrarlos correctamente a la capa de datos comercial."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "DIGITALIZACIÓN OPERATIVA",
+                "proyectos": [
+                    {
+                        "nombre": "Automatización de Procesos Operativos",
+                        "descripcion": "Identificar y automatizar procesos operativos y administrativos ineficientes o manuales, priorizando oportunidades de productividad para el equipo comercial.",
+                        "responsable": "TI / Data · VP Transformación · Trade Marketing",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ],
+                        "tipo": "Transformacional",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Diagnóstico de procesos manuales e ineficientes",
+                                "descripcion": "Identificar las tareas operativas y administrativas con mayor carga manual y potencial de automatización."
+                            },
+                            {
+                                "nombre": "Simplificación y estandarización administrativa",
+                                "descripcion": "Estandarizar y simplificar tareas administrativas repetitivas para liberar tiempo del equipo comercial."
+                            },
+                            {
+                                "nombre": "Automatización de reportes, alertas y control de gestión",
+                                "descripcion": "Reemplazar reportes manuales por tableros y alertas automáticas (territorio, PyG) que agilicen la toma de decisiones."
+                            },
+                            {
+                                "nombre": "Agentes de IA para decisiones y productividad comercial",
+                                "descripcion": "Usar agentes de IA en tareas repetitivas de análisis y decisión, mejorando de forma continua con nuevos datos y resultados."
+                            }
+                        ]
+                    },
+                    {
+                        "nombre": "Estandarización y Mejora Continua de Procesos (solo si tiene dueño claro)",
+                        "descripcion": "Estandarizar y mejorar continuamente los procesos operativos y administrativos del área comercial, condicionado a que exista un dueño claro que lidere su ejecución.",
+                        "responsable": "Por definir",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ],
+                        "tipo": "Funcional",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Diagnóstico y estandarización de procesos críticos",
+                                "descripcion": "Identificar y documentar los procesos con mayor variabilidad para estandarizarlos."
+                            },
+                            {
+                                "nombre": "Gobierno de mejora continua",
+                                "descripcion": "Definir el mecanismo y el dueño responsable de sostener la mejora continua en el tiempo."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "nombre": "GEN A",
+                "proyectos": [
+                    {
+                        "nombre": "Academia Comercial Alpina",
+                        "descripcion": "Desarrollar las capacidades comerciales y digitales del equipo para asegurar la mejor ejecución y el uso efectivo de las nuevas herramientas y plataformas disponibles.",
+                        "responsable": "Talento · Trade Marketing · VP Transformación",
+                        "dependencias": [],
+                        "iniciativas": [
+                            {
+                                "nombre": "Programa de academia comercial y fidelización de ecosistema",
+                                "descripcion": "Formar y fidelizar al ecosistema comercial mediante un programa de academia."
+                            },
+                            {
+                                "nombre": "Academia transversal de capacidades comerciales y digitales",
+                                "descripcion": "Desarrollar de forma transversal capacidades comerciales y digitales del equipo."
+                            },
+                            {
+                                "nombre": "Alineación de KPIs de fuerza de ventas con la estrategia",
+                                "descripcion": "Ajustar los KPIs de la fuerza de ventas para que reflejen la estrategia."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    },
+                    {
+                        "nombre": "Rediseño de Malla de Compensación",
+                        "descripcion": "Rediseñar los incentivos comerciales para alinear los comportamientos de la fuerza de ventas con las prioridades estratégicas de portafolio, canal y rentabilidad.",
+                        "responsable": "Talento · GTM · VP Transformación",
+                        "dependencias": [
+                            "Estructuras Comerciales y Estandarización Operativa"
+                        ],
+                        "iniciativas": [
+                            {
+                                "nombre": "Incentivos variables para acelerar productos estratégicos por canal y región",
+                                "descripcion": "Usar incentivos variables para impulsar productos estratégicos según canal y región."
+                            },
+                            {
+                                "nombre": "Rediseño de la malla de compensación alineada a prioridades GTM",
+                                "descripcion": "Rediseñar la malla de compensación comercial alineada a las prioridades de GTM."
+                            }
+                        ],
+                        "tipo": "Funcional",
+                        "canal": [
+                            "TAT",
+                            "Moderno",
+                            "Conveniencia",
+                            "Superetes"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+];
+
+        const PRIORIZACION_SUGERIDA = {
+            "Beneficios Compi": { impacto: 4, complejidad: 3 },
+            "HDV Unificada y Plataforma Colaborativa": { impacto: 4, complejidad: 4 },
+            "Modelo de Excelencia Comercial": { impacto: 3, complejidad: 2 },
+            "Herramientas de Gestión Comercial": { impacto: 3, complejidad: 4 },
+            "Gestión Operativa y Excelencia Logística": { impacto: 3, complejidad: 3 },
+            "Rediseño Estratégico de Canales": { impacto: 5, complejidad: 5 },
+            "Modelo de Atención por Canal, Tipología  y Segmentación": { impacto: 4, complejidad: 4 },
+            "Desarrollo de Nuevos Modelos de Llegada": { impacto: 4, complejidad: 4 },
+            "Atención Digital": { impacto: 5, complejidad: 5 },
+            "Segmentación Inteligente de Clientes y Canales": { impacto: 5, complejidad: 4 },
+            "Estructuras Comerciales y Estandarización Operativa": { impacto: 4, complejidad: 2 },
+            "Ruteo Dinámico y Operación Logística Ágil": { impacto: 3, complejidad: 3 },
+            "Plan 100": { impacto: 3, complejidad: 2 },
+            "Segmentación Portafolio Correcto (región + canal + cliente)": { impacto: 4, complejidad: 3 },
+            "Motor de Pricing Inteligente Omnicanal": { impacto: 5, complejidad: 5 },
+            "Gestión de Devoluciones Corto Plazo": { impacto: 3, complejidad: 2 },
+            "Modelo Predictivo de Devoluciones y S&OP": { impacto: 4, complejidad: 4 },
+            "Portafolio Actual — Categorías Foco": { impacto: 3, complejidad: 2 },
+            "Nutrición Avanzada": { impacto: 4, complejidad: 3 },
+            "Shopper LAB: Inteligencia del Shopper y Activación Digital": { impacto: 4, complejidad: 4 },
+            "Mancha Azul": { impacto: 4, complejidad: 2 },
+            "Guardianes de la Nevera": { impacto: 3, complejidad: 2 },
+            "FUA": { impacto: 4, complejidad: 2 },
+            "Gobierno y Planeación de Dinámicas": { impacto: 3, complejidad: 2 },
+            "Plataforma de Ejecución y Medición de Trade": { impacto: 4, complejidad: 4 },
+            "Trade Mix Modelling": { impacto: 5, complejidad: 5 },
+            "Alistamiento de la Data y Consolidación": { impacto: 5, complejidad: 4 },
+            "Automatización de Procesos Operativos": { impacto: 4, complejidad: 4 },
+            "Estandarización y Mejora Continua de Procesos (solo si tiene dueño claro)": { impacto: 3, complejidad: 2 },
+            "Academia Comercial Alpina": { impacto: 4, complejidad: 1 },
+            "Rediseño de Malla de Compensación": { impacto: 4, complejidad: 2 },
+        };
+
+        function slugify(str) {
+            return (str || '').toString().toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+
+        const allProjectsFlat = [];
+        const projectsByName = {};
+
+        palancasData.forEach(palanca => {
+            palanca.subpalancas.forEach(sub => {
+                sub.proyectos.forEach(proy => {
+                    const id = `proy-${slugify(palanca.numero + '-' + sub.nombre + '-' + proy.nombre)}`;
+                    const projObj = {
+                        id,
+                        nombre: proy.nombre,
+                        descripcion: proy.descripcion || '',
+                        responsable: proy.responsable || 'Sin asignar',
+                        canal: proy.canal || [],
+                        tipo: proy.tipo || 'Funcional',
+                        dependencias: proy.dependencias || [],
+                        iniciativas: proy.iniciativas || [],
+                        palancaNumero: palanca.numero,
+                        palancaNombre: palanca.nombre,
+                        palancaHex: palanca.hex,
+                        subpalancaNombre: sub.nombre
+                    };
+                    allProjectsFlat.push(projObj);
+                    projectsByName[proy.nombre.trim().toLowerCase()] = projObj;
+                });
+            });
+        });
+
+        const STOPWORDS = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'y', 'en', 'por', 'para', 'con', 'a', 'al']);
+
+        function tokenize(str) {
+            return slugify(str).split('-').filter(t => t && !STOPWORDS.has(t));
+        }
+
+        const dependencyResolutionCache = {};
+        function resolveProjectByName(rawName) {
+            const key = rawName.trim().toLowerCase();
+            if (dependencyResolutionCache[key] !== undefined) return dependencyResolutionCache[key];
+
+            if (projectsByName[key]) {
+                dependencyResolutionCache[key] = projectsByName[key];
+                return projectsByName[key];
+            }
+
+            const depTokens = new Set(tokenize(rawName));
+            if (depTokens.size === 0) {
+                dependencyResolutionCache[key] = null;
+                return null;
+            }
+
+            let best = null;
+            let bestScore = 0;
+            allProjectsFlat.forEach(proj => {
+                const projTokens = new Set(tokenize(proj.nombre));
+                let overlap = 0;
+                depTokens.forEach(t => { if (projTokens.has(t)) overlap++; });
+                const union = new Set([...depTokens, ...projTokens]).size;
+                const score = union ? overlap / union : 0;
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = proj;
+                }
+            });
+
+            const resolved = bestScore >= 0.4 ? best : null;
+            dependencyResolutionCache[key] = resolved;
+            return resolved;
+        }
+
+        const subpalancaGroups = [];
+        const subpalancaIndex = {};
+        allProjectsFlat.forEach(p => {
+            const key = p.palancaNumero + '||' + p.subpalancaNombre;
+            if (!subpalancaIndex[key]) {
+                const group = { palancaNumero: p.palancaNumero, palancaNombre: p.palancaNombre, palancaHex: p.palancaHex, subpalancaNombre: p.subpalancaNombre, proyectos: [] };
+                subpalancaIndex[key] = group;
+                subpalancaGroups.push(group);
+            }
+            subpalancaIndex[key].proyectos.push(p);
+        });
+
+        const renderProyectoFicha = (proy) => {
+            const iniciativasHtml = proy.iniciativas.map(ini => `
+                <li class="text-xs text-slate-600 leading-snug">
+                    <span class="font-semibold text-slate-700">${ini.nombre}</span>${ini.descripcion ? ` <span class="text-slate-500">— ${ini.descripcion}</span>` : ''}
+                </li>
+            `).join('');
+
+            const PALANCA_NAME_HEX = {};
+            palancasData.forEach(pl => { PALANCA_NAME_HEX[pl.nombre.trim().toLowerCase()] = pl.hex; });
+
+            const dependenciasHtml = proy.dependencias.length ? `
+                <ul class="mt-1 space-y-1">
+                    ${proy.dependencias.map(depName => {
+                        const depProj = resolveProjectByName(depName);
+                        const palancaHexMatch = PALANCA_NAME_HEX[depName.trim().toLowerCase()];
+                        const dotColor = depProj ? depProj.palancaHex : (palancaHexMatch || '#94a3b8');
+                        const label = depProj ? depProj.nombre : depName;
+                        return `
+                        <li class="flex items-center gap-2 text-xs text-slate-600">
+                            <span class="w-2 h-2 rounded-full shrink-0" style="background:${dotColor}"></span>
+                            ${label}
+                        </li>`;
+                    }).join('')}
+                </ul>
+            ` : `
+                <p class="mt-1 text-xs text-slate-400 italic">Sin dependencia</p>
+            `;
+
+            const canalHtml = (proy.canal && proy.canal.length) ? `
+                <div class="flex flex-wrap gap-1.5 mt-1">
+                    ${proy.canal.map(c => `<span class="px-2 py-0.5 bg-cyan-50 text-alpina-blue text-[10px] font-bold rounded-full">${c}</span>`).join('')}
+                </div>
+            ` : `<p class="mt-1 text-xs text-slate-400 italic">Sin canal definido</p>`;
+
+            const tipoColor = proy.tipo === 'Transformacional' ? { bg: '#EDE9FE', text: '#6D28D9' } : { bg: '#DBEAFE', text: '#1D4ED8' };
+
+            return `
+            <div class="proyecto-card bg-stone-50/70 border border-stone-200 rounded-2xl overflow-hidden"
+                 data-name="${proy.nombre.toLowerCase()}" data-desc="${proy.descripcion.toLowerCase()}"
+                 data-iniciativas="${proy.iniciativas.map(i => (i.nombre + ' ' + i.descripcion)).join(' ').toLowerCase()}">
+                <button class="toggle-btn w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white transition-colors gap-2">
+                    <span class="font-semibold text-slate-700 text-xs md:text-sm pr-2 flex-1">${proy.nombre}</span>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide shrink-0" style="background:${tipoColor.bg}; color:${tipoColor.text}">${proy.tipo}</span>
+                    <i data-lucide="chevron-down" class="chevron w-4 h-4 text-slate-400 transition-transform shrink-0"></i>
+                </button>
+                <div class="accordion-content hidden px-4 pb-4 pt-1 space-y-3">
+                    <p class="text-xs text-slate-500 leading-relaxed">${proy.descripcion}</p>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+                            <span class="text-xs text-slate-500"><span class="font-semibold text-slate-600">Responsable:</span> ${proy.responsable}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wide text-slate-400 flex items-center gap-1.5"><i data-lucide="radio" class="w-3 h-3"></i>Canal</span>
+                        ${canalHtml}
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wide text-slate-400 flex items-center gap-1.5"><i data-lucide="link-2" class="w-3 h-3"></i>Dependencias</span>
+                        ${dependenciasHtml}
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold uppercase tracking-wide text-slate-400">Iniciativas</span>
+                        <ul class="mt-1.5 space-y-1.5 list-disc list-inside">${iniciativasHtml}</ul>
+                    </div>
+                </div>
+            </div>`;
+        };
+
+        const renderSubpalancaCard = (group) => `
+            <div class="subpalanca-card bg-white border border-stone-200 rounded-3xl shadow-sm p-2 mb-4" data-name="${group.subpalancaNombre.toLowerCase()}" data-palanca-numero="${group.palancaNumero}">
+                <button class="toggle-btn w-full flex items-center justify-between p-4 text-left rounded-2xl hover:bg-stone-50 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:${group.palancaHex}1A; color:${group.palancaHex}">
+                            <i data-lucide="folder-tree" class="w-4 h-4"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold uppercase tracking-wider" style="color:${group.palancaHex}">${group.palancaNumero <= 4 ? `Palanca ${group.palancaNumero} · ${group.palancaNombre}` : 'Habilitador'}</span>
+                            <span class="font-extrabold text-slate-800 text-sm md:text-base leading-snug">${group.subpalancaNombre}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-xs text-slate-400 font-semibold hidden sm:inline">${group.proyectos.length} proyecto${group.proyectos.length === 1 ? '' : 's'}</span>
+                        <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-400 transition-transform"></i>
+                    </div>
+                </button>
+                <div class="accordion-content hidden p-2 pt-2 space-y-2">
+                    ${group.proyectos.map(renderProyectoFicha).join('')}
+                </div>
+            </div>
+        `;
+
+        const renderIniciativaMini = (ini) => `
+            <div class="bg-white border border-stone-200 p-2.5 rounded-lg shadow-sm">
+                <p class="text-[11px] md:text-xs font-medium text-slate-800 leading-snug mb-1">${ini.nombre}</p>
+                ${ini.descripcion ? `<p class="text-[10px] md:text-[11px] text-slate-500 leading-relaxed">${ini.descripcion}</p>` : ''}
+            </div>
+        `;
+
+        function computeLayout(numero, subpalancaNombre) {
+            const local = allProjectsFlat.filter(p => p.palancaNumero === numero && p.subpalancaNombre === subpalancaNombre);
+            const nodeMap = {};
+            local.forEach(p => { nodeMap[p.id] = { ...p, unlocks: [] }; });
+
+            let changed = true;
+            while (changed) {
+                changed = false;
+                Object.values(nodeMap).forEach(node => {
+                    (node.dependencias || []).forEach(depName => {
+                        const depProj = resolveProjectByName(depName);
+                        if (!depProj) return;
+                        if (!nodeMap[depProj.id]) {
+                            nodeMap[depProj.id] = { ...depProj, unlocks: [] };
+                            changed = true;
+                        }
+                    });
+                });
+            }
+
+            Object.values(nodeMap).forEach(node => {
+                (node.dependencias || []).forEach(depName => {
+                    const depProj = resolveProjectByName(depName);
+                    if (!depProj || !nodeMap[depProj.id]) return;
+                    if (!nodeMap[depProj.id].unlocks.includes(node.id)) {
+                        nodeMap[depProj.id].unlocks.push(node.id);
+                    }
+                });
+            });
+
+            function canReachWithoutEdge(fromId, toId, skipFrom, skipTo) {
+                const visited = new Set();
+                const stack = [fromId];
+                while (stack.length) {
+                    const cur = stack.pop();
+                    if (cur === toId && cur !== fromId) return true;
+                    if (visited.has(cur)) continue;
+                    visited.add(cur);
+                    const curNode = nodeMap[cur];
+                    if (!curNode) continue;
+                    (curNode.unlocks || []).forEach(nxt => {
+                        if (cur === skipFrom && nxt === skipTo) return;
+                        if (!visited.has(nxt)) stack.push(nxt);
+                    });
+                }
+                return false;
+            }
+            Object.keys(nodeMap).forEach(uId => {
+                const node = nodeMap[uId];
+                const successors = [...(node.unlocks || [])];
+                successors.forEach(vId => {
+                    if (canReachWithoutEdge(uId, vId, uId, vId)) {
+                        node.unlocks = node.unlocks.filter(id => id !== vId);
+                    }
+                });
+            });
+
+            const levelCache = {};
+            function levelOf(id, visiting) {
+                if (levelCache[id] !== undefined) return levelCache[id];
+                if (visiting.has(id)) return 0;
+                visiting.add(id);
+                const node = nodeMap[id];
+                const deps = (node.dependencias || [])
+                    .map(n => resolveProjectByName(n))
+                    .filter(Boolean)
+                    .filter(d => nodeMap[d.id]);
+                let lvl = 0;
+                deps.forEach(d => { lvl = Math.max(lvl, levelOf(d.id, visiting) + 1); });
+                levelCache[id] = lvl;
+                visiting.delete(id);
+                return lvl;
+            }
+            Object.keys(nodeMap).forEach(id => levelOf(id, new Set()));
+
+            const columns = {};
+            let maxLevel = 0;
+            Object.values(nodeMap).forEach(node => {
+                const lvl = levelCache[node.id];
+                if (!columns[lvl]) columns[lvl] = [];
+                columns[lvl].push(node);
+                if (lvl > maxLevel) maxLevel = lvl;
+            });
+
+            return { columns, maxLevel };
+        }
+
+        function renderRoadmapNode(node, currentNumero, currentSubpalanca, activeColor) {
+            const isDifferentPalanca = node.palancaNumero !== currentNumero;
+            const isDifferentSubpalanca = node.subpalancaNombre !== currentSubpalanca;
+            const isExternal = isDifferentPalanca || isDifferentSubpalanca;
+            const iniCount = node.iniciativas.length;
+            const styleAttr = isExternal ? `style="border-color:${node.palancaHex}55; background:${node.palancaHex}0D;"` : '';
+            const eyebrow = isDifferentPalanca
+                ? `<span class="px-2 py-0.5 text-[9px] font-bold rounded" style="background:${node.palancaHex}1A; color:${node.palancaHex}">Palanca ${node.palancaNumero} · externo</span>`
+                : isDifferentSubpalanca
+                    ? `<span class="px-2 py-0.5 text-[9px] font-bold rounded" style="background:${node.palancaHex}1A; color:${node.palancaHex}">${node.subpalancaNombre} · externo</span>`
+                    : `<span class="px-2 py-0.5 text-[9px] font-bold text-slate-400 rounded bg-stone-100">${node.subpalancaNombre}</span>`;
+
+            return `
+            <div class="roadmap-node bg-white border-2 border-stone-200 rounded-xl shadow-sm cursor-pointer transition-all duration-300 w-64 md:w-72 shrink-0 z-10 relative flex flex-col"
+                 ${styleAttr}
+                 id="${node.id}"
+                 data-unlocks="${(node.unlocks || []).join(',')}"
+                 data-active-color="${activeColor}"
+                 onclick="toggleRoadmapNode(this)">
+                <div class="p-3.5 hover:bg-stone-50/60 rounded-t-xl transition-colors">
+                    <div class="flex items-center justify-between mb-1.5 gap-2">
+                        ${eyebrow}
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-300 rm-chevron shrink-0"></i>
+                    </div>
+                    <h4 class="font-bold text-xs md:text-sm text-slate-800 leading-tight">${node.nombre}</h4>
+                    <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">${iniCount} iniciativa${iniCount === 1 ? '' : 's'}</span>
+                </div>
+                <div class="roadmap-initiatives hidden flex-1 bg-stone-50/70 border-t border-stone-100 p-3 max-h-80 overflow-y-auto rounded-b-xl space-y-2 custom-scrollbar">
+                    ${node.iniciativas.map(renderIniciativaMini).join('')}
+                </div>
+            </div>`;
+        }
+
+        function generateRoadmapHTML(numero, subIdx, subpalancaNombre, activeColor) {
+            const key = `${numero}_${subIdx}`;
+            const { columns, maxLevel } = computeLayout(numero, subpalancaNombre);
+            let columnsHtml = '';
+            let hasNodes = false;
+
+            for (let lvl = 0; lvl <= maxLevel; lvl++) {
+                const nodes = columns[lvl] || [];
+                if (!nodes.length) continue;
+                hasNodes = true;
+                columnsHtml += `
+                <div class="flex flex-col gap-4 relative shrink-0" style="min-width: 280px;">
+                    ${nodes.map(n => renderRoadmapNode(n, numero, subpalancaNombre, activeColor)).join('')}
+                </div>`;
+            }
+
+            if (!hasNodes) {
+                return `<p class="text-sm text-slate-400 italic px-2 text-center">Aún no hay proyectos cargados para esta subpalanca.</p>`;
+            }
+
+            return `
+            <div class="roadmap-container relative overflow-x-auto custom-scrollbar pb-6" id="rm-container-${key}">
+                <svg class="absolute top-0 left-0 w-full h-full pointer-events-none z-0" id="svg-rm-${key}">
+                    <defs>
+                        <marker id="arrow-${key}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#cbd5e1"/></marker>
+                        <marker id="arrow-active-${key}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${activeColor}"/></marker>
+                    </defs>
+                </svg>
+                <div class="flex gap-10 relative z-10 pt-2 px-2" style="min-height: 200px; width: max-content; max-width: 100%; margin: 0 auto;">
+                    ${columnsHtml}
+                </div>
+            </div>`;
+        }
+
+        let detailHtmlStr = '';
+        palancasData.filter(palanca => palanca.numero <= 4).forEach(palanca => {
+            const local = allProjectsFlat.filter(p => p.palancaNumero === palanca.numero);
+            const totalIniciativas = local.reduce((acc, p) => acc + p.iniciativas.length, 0);
+
+            const subTabsHtml = palanca.subpalancas.map((sub, idx) => {
+                const count = allProjectsFlat.filter(p => p.palancaNumero === palanca.numero && p.subpalancaNombre === sub.nombre).length;
+                return `
+                <button class="subpalanca-tab-btn ${idx === 0 ? 'active' : ''} flex flex-col items-start justify-center gap-0.5 px-4 py-3 rounded-xl border transition-all text-left h-full"
+                        style="${idx === 0 ? `border-color:${palanca.hex}; background:${palanca.hex}0D;` : 'border-color:#e7e5e4; background:white;'}"
+                        data-numero="${palanca.numero}" data-idx="${idx}" data-hex="${palanca.hex}"
+                        onclick="selectSubpalanca(${palanca.numero}, ${idx})">
+                    <span class="text-xs font-bold leading-tight" style="color:${idx === 0 ? palanca.hex : '#334155'}">${sub.nombre}</span>
+                    <span class="text-[10px] text-slate-400 font-semibold">${count} proyecto${count === 1 ? '' : 's'}</span>
+                </button>`;
+            }).join('');
+
+            const roadmapWrappersHtml = palanca.subpalancas.map((sub, idx) => `
+                <div class="subpalanca-roadmap ${idx === 0 ? '' : 'hidden'}" id="rm-wrapper-${palanca.numero}_${idx}">
+                    ${generateRoadmapHTML(palanca.numero, idx, sub.nombre, palanca.hex)}
+                </div>
+            `).join('');
+
+            detailHtmlStr += `
+            <div class="macro-detail hidden flex flex-col h-full" data-macronum="${palanca.numero}">
+                <div class="relative bg-gradient-to-r ${palanca.gradient} rounded-[2rem] p-8 md:p-12 mb-6 overflow-hidden shadow-xl text-white">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+                    <div class="relative z-10 flex items-center gap-6">
+                        <div class="bg-white/20 p-5 rounded-3xl border border-white/30 shadow-inner">
+                            <i data-lucide="${palanca.icon}" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <div>
+                            <span class="uppercase tracking-widest text-xs font-bold bg-white/20 px-3 py-1 rounded-full mb-2 inline-block">Palanca ${palanca.numero}</span>
+                            <h2 class="font-extrabold text-3xl md:text-5xl tracking-tight leading-tight">${palanca.nombre}</h2>
+                            <p class="mt-2 font-medium">${local.length} proyecto${local.length === 1 ? '' : 's'} · ${totalIniciativas} iniciativa${totalIniciativas === 1 ? '' : 's'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4 shrink-0">
+                    <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-2 px-1">Subpalancas — selecciona una para ver sus proyectos y dependencias</p>
+                    <div class="grid gap-2" style="grid-template-columns: repeat(${palanca.subpalancas.length}, 1fr);" id="subpalanca-tabs-${palanca.numero}">
+                        ${subTabsHtml}
+                    </div>
+                </div>
+
+                <div class="roadmap-content flex-1 relative min-h-[400px] mb-10">
+                    ${roadmapWrappersHtml}
+                </div>
+            </div>`;
+        });
+
+        document.getElementById('detailContentContainer').innerHTML = detailHtmlStr;
+
+        document.getElementById('projectsContentContainer').innerHTML = subpalancaGroups.map(renderSubpalancaCard).join('');
+
+        lucide.createIcons();
+
+        const viewUniverse = document.getElementById('viewUniverse');
+        const viewDetail = document.getElementById('viewDetail');
+        const viewProjectsList = document.getElementById('viewProjectsList');
+        const viewMatrizPriorizacion = document.getElementById('viewMatrizPriorizacion');
+        const searchInput = document.getElementById('searchInput');
+        let activeRoadmapKey = null;
+
+        function hideAllViews() {
+            viewUniverse.classList.add('hidden');
+            viewDetail.classList.add('hidden');
+            viewProjectsList.classList.add('hidden');
+            viewMatrizPriorizacion.classList.add('hidden');
+        }
+
+        function openUniverse() {
+            hideAllViews();
+            viewUniverse.classList.remove('hidden');
+        }
+
+        function openDetail(targetMacro) {
+            hideAllViews();
+            let activeDetail = null;
+            document.querySelectorAll('.macro-detail').forEach(detail => {
+                if (detail.getAttribute('data-macronum') === String(targetMacro)) {
+                    detail.classList.remove('hidden');
+                    activeDetail = detail;
+                } else {
+                    detail.classList.add('hidden');
+                }
+            });
+            viewDetail.classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            if (activeDetail) {
+                activeRoadmapKey = `${targetMacro}_0`;
+                setTimeout(() => drawRoadmapLines(activeRoadmapKey), 150);
+            }
+        }
+
+        function selectSubpalanca(numero, idx) {
+            const tabsContainer = document.getElementById(`subpalanca-tabs-${numero}`);
+            if (tabsContainer) {
+                tabsContainer.querySelectorAll('.subpalanca-tab-btn').forEach(btn => {
+                    const isActive = btn.getAttribute('data-idx') === String(idx);
+                    const hex = btn.getAttribute('data-hex') || '#0057B8';
+                    btn.classList.toggle('active', isActive);
+                    if (isActive) {
+                        btn.style.borderColor = hex;
+                        btn.style.background = hex + '0D';
+                        btn.querySelector('span').style.color = hex;
+                    } else {
+                        btn.style.borderColor = '#e7e5e4';
+                        btn.style.background = '#ffffff';
+                        btn.querySelector('span').style.color = '#334155';
+                    }
+                });
+            }
+
+            const detail = document.querySelector(`.macro-detail[data-macronum="${numero}"]`);
+            if (detail) {
+                detail.querySelectorAll('.subpalanca-roadmap').forEach(el => el.classList.add('hidden'));
+                const target = detail.querySelector(`#rm-wrapper-${numero}_${idx}`);
+                if (target) target.classList.remove('hidden');
+            }
+
+            activeRoadmapKey = `${numero}_${idx}`;
+            setTimeout(() => drawRoadmapLines(activeRoadmapKey), 50);
+        }
+
+        function openProjectsList() {
+            hideAllViews();
+            viewProjectsList.classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function animateCollapse(el, onDone) {
+            const startHeight = el.scrollHeight;
+            el.style.overflow = 'hidden';
+            el.style.minHeight = '0px';
+            el.style.maxHeight = startHeight + 'px';
+            void el.offsetHeight;
+            el.style.transition = 'max-height 0.55s ease-in-out, opacity 0.4s ease-in-out, transform 0.4s ease-in-out, margin-bottom 0.55s ease-in-out';
+            el.style.opacity = '0';
+            el.style.transform = 'scale(0.97) translateY(-10px)';
+            el.style.maxHeight = '0px';
+            el.style.marginBottom = '0px';
+            el.style.pointerEvents = 'none';
+
+            const handler = (e) => {
+                if (e.target !== el || e.propertyName !== 'max-height') return;
+                el.removeEventListener('transitionend', handler);
+                if (onDone) onDone();
+            };
+            el.addEventListener('transitionend', handler);
+        }
+
+        function animateExpand(el, onDone) {
+            el.classList.remove('hidden', 'opacity-0', 'max-h-0', '-translate-y-4');
+            el.style.transition = 'none';
+            el.style.minHeight = '';
+            el.style.maxHeight = '';
+            el.style.opacity = '';
+            el.style.transform = '';
+            el.style.marginBottom = '';
+            el.style.overflow = '';
+            el.style.pointerEvents = '';
+            void el.offsetHeight;
+            const targetHeight = el.scrollHeight;
+
+            el.style.minHeight = '0px';
+            el.style.maxHeight = '0px';
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(-10px) scale(0.98)';
+            el.style.marginBottom = '0px';
+            el.style.overflow = 'hidden';
+            void el.offsetHeight;
+
+            el.style.transition = 'max-height 0.6s ease-in-out, opacity 0.45s ease-in-out, transform 0.45s ease-in-out, margin-bottom 0.6s ease-in-out';
+            el.style.maxHeight = targetHeight + 'px';
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0) scale(1)';
+            el.style.marginBottom = '';
+
+            const handler = (e) => {
+                if (e.target !== el || e.propertyName !== 'max-height') return;
+                el.removeEventListener('transitionend', handler);
+                el.style.maxHeight = '';
+                el.style.minHeight = '';
+                el.style.overflow = '';
+                el.style.pointerEvents = '';
+                if (onDone) onDone();
+            };
+            el.addEventListener('transitionend', handler);
+        }
+
+        let strategyExpanded = false;
+        function revealStrategy() {
+            if (strategyExpanded) return;
+            strategyExpanded = true;
+            const hero = document.getElementById('heroIntro');
+            const rest = document.getElementById('restContent');
+            animateCollapse(hero, () => {
+                hero.classList.add('hidden');
+                animateExpand(rest);
+            });
+        }
+
+        function collapseToHero() {
+            if (!strategyExpanded) return;
+            strategyExpanded = false;
+            const hero = document.getElementById('heroIntro');
+            const rest = document.getElementById('restContent');
+            animateCollapse(rest, () => {
+                animateExpand(hero);
+            });
+        }
+
+        const habilitadorLabels = {
+            tech: 'Inteligencia de Datos, Digitalización y Automatización',
+            genai: 'GEN A'
+        };
+        const habilitadorSubpalancas = {
+            tech: ['integración de datos y visibilidad', 'digitalización operativa'],
+            genai: ['gen a']
+        };
+
+        function openHabilitadorProjects(mode) {
+            hideAllViews();
+            viewProjectsList.classList.remove('hidden');
+            window.scrollTo(0, 0);
+            if (searchInput) searchInput.value = '';
+
+            const targetSubs = habilitadorSubpalancas[mode] || [];
+            let totalMatches = 0;
+
+            document.querySelectorAll('#projectsContentContainer .subpalanca-card').forEach(subCard => {
+                const isHabilitador = subCard.getAttribute('data-palanca-numero') === '5';
+                const subName = subCard.getAttribute('data-name') || '';
+                const isMatch = isHabilitador && targetSubs.includes(subName);
+
+                if (isMatch) {
+                    subCard.classList.remove('hidden');
+                    subCard.querySelectorAll('.proyecto-card').forEach(c => {
+                        c.classList.remove('hidden');
+                        totalMatches++;
+                    });
+                    const content = subCard.querySelector('.accordion-content');
+                    const chevron = subCard.querySelector('.chevron');
+                    if (content && content.classList.contains('hidden')) {
+                        content.classList.remove('hidden');
+                        if (chevron) chevron.classList.add('rotate-180');
+                    }
+                } else {
+                    subCard.classList.add('hidden');
+                }
+            });
+
+            const banner = document.getElementById('habilitadorFilterBanner');
+            const bannerLabel = document.getElementById('habilitadorFilterLabel');
+            const bannerCount = document.getElementById('habilitadorFilterCount');
+            if (banner && bannerLabel && bannerCount) {
+                bannerLabel.textContent = habilitadorLabels[mode] || '';
+                bannerCount.textContent = totalMatches + (totalMatches === 1 ? ' proyecto encontrado' : ' proyectos encontrados');
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+            }
+        }
+
+        function clearHabilitadorFilter() {
+            document.querySelectorAll('#projectsContentContainer .subpalanca-card, #projectsContentContainer .proyecto-card').forEach(el => el.classList.remove('hidden'));
+            const banner = document.getElementById('habilitadorFilterBanner');
+            if (banner) {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }
+        }
+
+        function toggleRoadmapNode(nodeEl) {
+            const inis = nodeEl.querySelector('.roadmap-initiatives');
+            const chevron = nodeEl.querySelector('.rm-chevron');
+            const isHidden = inis.classList.contains('hidden');
+            const activeColor = nodeEl.getAttribute('data-active-color') || '#00A3E0';
+
+            if (isHidden) {
+                inis.classList.remove('hidden');
+                nodeEl.style.borderColor = activeColor;
+                nodeEl.classList.add('ring-2', 'shadow-md');
+                nodeEl.style.setProperty('--tw-ring-color', activeColor);
+                if (chevron) {
+                    chevron.classList.add('rotate-180');
+                    chevron.style.color = activeColor;
+                }
+            } else {
+                inis.classList.add('hidden');
+                nodeEl.style.borderColor = '#e2e8f0';
+                nodeEl.classList.remove('ring-2', 'shadow-md');
+                nodeEl.style.removeProperty('--tw-ring-color');
+                if (chevron) {
+                    chevron.classList.remove('rotate-180');
+                    chevron.style.color = '#94a3b8';
+                }
+            }
+
+            const container = nodeEl.closest('.roadmap-container');
+            if (!container) return;
+            const macroNum = container.id.split('-')[2];
+
+            highlightPaths(container, nodeEl, isHidden);
+            drawRoadmapLines(macroNum);
+            setTimeout(() => drawRoadmapLines(macroNum), 50);
+        }
+
+        function highlightPaths(container, activeNode, isActive) {
+            const unlocksStr = activeNode.getAttribute('data-unlocks');
+            if (!unlocksStr) return;
+            const targets = unlocksStr.split(',').filter(Boolean);
+            const activeColor = activeNode.getAttribute('data-active-color') || '#00A3E0';
+
+            targets.forEach(targetId => {
+                const line = container.querySelector(`#line-${activeNode.id}-${targetId}`);
+                const targetNode = container.querySelector(`#${targetId}`);
+
+                if (isActive) {
+                    if (line) {
+                        line.classList.add('active');
+                        line.style.stroke = activeColor;
+                    }
+                    if (targetNode) {
+                        targetNode.classList.add('glow-pulse-subtle');
+                        targetNode.style.borderColor = activeColor;
+                    }
+                } else {
+                    if (line) {
+                        line.classList.remove('active');
+                        line.style.stroke = '#cbd5e1';
+                    }
+                    if (targetNode) {
+                        targetNode.classList.remove('glow-pulse-subtle');
+                        targetNode.style.borderColor = '#e2e8f0';
+                    }
+                }
+            });
+        }
+
+        function drawRoadmapLines(macroNum) {
+            const container = document.getElementById(`rm-container-${macroNum}`);
+            const svg = document.getElementById(`svg-rm-${macroNum}`);
+            if (!container || !svg) return;
+
+            Array.from(svg.children).forEach(child => {
+                if (child.tagName !== 'defs') svg.removeChild(child);
+            });
+
+            const containerRect = container.getBoundingClientRect();
+            const nodes = container.querySelectorAll('.roadmap-node');
+
+            nodes.forEach(node => {
+                const unlocksStr = node.getAttribute('data-unlocks');
+                const activeColor = node.getAttribute('data-active-color') || '#00A3E0';
+                if (!unlocksStr) return;
+                const targets = unlocksStr.split(',').filter(Boolean);
+
+                targets.forEach(targetId => {
+                    const targetNode = container.querySelector(`#${targetId}`);
+                    if (!targetNode) return;
+
+                    const r1 = node.getBoundingClientRect();
+                    const r2 = targetNode.getBoundingClientRect();
+
+                    const x1 = (r1.right - containerRect.left) + container.scrollLeft;
+                    const y1 = (r1.top - containerRect.top + 35);
+
+                    const x2 = (r2.left - containerRect.left) + container.scrollLeft;
+                    const y2 = (r2.top - containerRect.top + 35);
+
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    const offset = Math.abs(x2 - x1) * 0.5;
+                    const d = `M ${x1} ${y1} C ${x1 + offset} ${y1}, ${x2 - offset} ${y2}, ${x2} ${y2}`;
+
+                    path.setAttribute('d', d);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', '#cbd5e1');
+                    path.setAttribute('stroke-width', '2');
+                    path.setAttribute('id', `line-${node.id}-${targetId}`);
+                    path.classList.add('connection-line');
+                    path.setAttribute('marker-end', `url(#arrow-${macroNum})`);
+
+                    if (node.classList.contains('ring-2')) {
+                        path.classList.add('active');
+                        path.style.stroke = activeColor;
+                        path.setAttribute('marker-end', `url(#arrow-active-${macroNum})`);
+                    }
+
+                    svg.appendChild(path);
+                });
+            });
+        }
+
+        window.addEventListener('resize', () => {
+            if (activeRoadmapKey && !viewDetail.classList.contains('hidden')) {
+                drawRoadmapLines(activeRoadmapKey);
+            }
+        });
+
+        document.body.addEventListener('click', (e) => {
+            const btn = e.target.closest('.toggle-btn');
+            if (!btn) return;
+            const content = btn.nextElementSibling;
+            const chevron = btn.querySelector('.chevron');
+            if (content && content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                if (chevron) chevron.classList.add('rotate-180');
+            } else if (content) {
+                content.classList.add('hidden');
+                if (chevron) chevron.classList.remove('rotate-180');
+            }
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+
+            if (term !== '' && viewProjectsList.classList.contains('hidden')) {
+                openProjectsList();
+            }
+
+            const banner = document.getElementById('habilitadorFilterBanner');
+            if (banner && !banner.classList.contains('hidden')) {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }
+
+            let hasResults = false;
+
+            document.querySelectorAll('#projectsContentContainer .subpalanca-card').forEach(subCard => {
+                const subMatches = (subCard.getAttribute('data-name') || '').includes(term);
+                let anyProyMatch = false;
+
+                subCard.querySelectorAll('.proyecto-card').forEach(proyCard => {
+                    const haystack = [
+                        proyCard.getAttribute('data-name') || '',
+                        proyCard.getAttribute('data-desc') || '',
+                        proyCard.getAttribute('data-iniciativas') || ''
+                    ].join(' ');
+                    const proyMatches = term === '' || haystack.includes(term);
+                    proyCard.classList.toggle('hidden', !proyMatches);
+                    if (proyMatches) anyProyMatch = true;
+                });
+
+                const showSub = term === '' || subMatches || anyProyMatch;
+                subCard.classList.toggle('hidden', !showSub);
+                if (showSub) hasResults = true;
+
+                if (term !== '' && showSub) {
+                    const content = subCard.querySelector('.accordion-content');
+                    const chevron = subCard.querySelector('.chevron');
+                    if (content && content.classList.contains('hidden')) {
+                        content.classList.remove('hidden');
+                        if (chevron) chevron.classList.add('rotate-180');
+                    }
+                }
+            });
+
+            if (!hasResults && term !== '') document.getElementById('noResults').classList.remove('hidden');
+            else document.getElementById('noResults').classList.add('hidden');
+        });
+
+        let matrizData = null;
+        let matrizDraggingEl = null;
+        const MATRIZ_STORAGE_KEY = 'alpina_matriz_priorizacion_v1';
+
+        function saveMatrizToStorage() {
+            try {
+                const toSave = {};
+                Object.entries(matrizData).forEach(([id, m]) => {
+                    toSave[id] = { impacto: m.impacto, complejidad: m.complejidad };
+                });
+                localStorage.setItem(MATRIZ_STORAGE_KEY, JSON.stringify(toSave));
+            } catch (e) { console.warn('No se pudo guardar la priorización en este navegador:', e); }
+        }
+
+        function loadMatrizFromStorage() {
+            try {
+                const raw = localStorage.getItem(MATRIZ_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) { return null; }
+        }
+
+        function buildMatrizData() {
+            const saved = loadMatrizFromStorage();
+            matrizData = {};
+            let counter = 1;
+            allProjectsFlat.forEach(p => {
+                const sug = PRIORIZACION_SUGERIDA[p.nombre] || { impacto: 3, complejidad: 3 };
+                const override = saved && saved[p.id];
+                matrizData[p.id] = {
+                    numero: counter++,
+                    nombre: p.nombre,
+                    palancaHex: p.palancaHex,
+                    impacto: override ? override.impacto : sug.impacto,
+                    complejidad: override ? override.complejidad : sug.complejidad
+                };
+            });
+        }
+
+        function resetMatrizPriorizacion() {
+            try { localStorage.removeItem(MATRIZ_STORAGE_KEY); } catch (e) { /* noop */ }
+            matrizData = null;
+            buildMatrizData();
+            renderMatrizPriorizacion();
+        }
+
+        function computeBubblePositions(entries) {
+            const groups = {};
+            entries.forEach(([id, m]) => {
+                const key = m.impacto + '_' + m.complejidad;
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(id);
+            });
+
+            const positions = {};
+            Object.values(groups).forEach(ids => {
+                const n = ids.length;
+                const cols = Math.ceil(Math.sqrt(n));
+                const rows = Math.ceil(n / cols);
+                ids.forEach((id, idx) => {
+                    const m = matrizData[id];
+                    const baseLeft = (m.complejidad - 0.5) / 5 * 100;
+                    const baseTop = (5 - m.impacto + 0.5) / 5 * 100;
+                    if (n === 1) {
+                        positions[id] = { left: baseLeft, top: baseTop };
+                    } else {
+                        const row = Math.floor(idx / cols);
+                        const col = idx % cols;
+                        const spread = 6.5;
+                        const offsetX = (col - (cols - 1) / 2) * spread;
+                        const offsetY = (row - (rows - 1) / 2) * spread;
+                        positions[id] = {
+                            left: Math.max(2, Math.min(98, baseLeft + offsetX)),
+                            top: Math.max(2, Math.min(98, baseTop + offsetY))
+                        };
+                    }
+                });
+            });
+            return positions;
+        }
+
+        function renderMatrizPriorizacion() {
+            const listado = document.getElementById('matrizListado');
+            const entries = Object.entries(matrizData);
+
+            listado.innerHTML = `
+                <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-2 px-1">Proyectos (${entries.length})</p>
+                ${entries.map(([id, m]) => `
+                    <div class="flex items-start gap-2 py-1.5 border-b border-stone-100 last:border-0 px-1">
+                        <span class="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0 mt-0.5" style="background:${m.palancaHex}">${m.numero}</span>
+                        <span class="text-[11px] text-slate-700 leading-snug">${m.nombre}</span>
+                    </div>
+                `).join('')}
+            `;
+
+            const positions = computeBubblePositions(entries);
+
+            const wrapper = document.getElementById('matrizGridWrapper');
+            const cellLines = [1, 2, 3, 4].map(i => `
+                <div class="absolute top-0 bottom-0 border-l border-dashed border-stone-200" style="left:${i * 20}%"></div>
+                <div class="absolute left-0 right-0 border-t border-dashed border-stone-200" style="top:${i * 20}%"></div>
+            `).join('');
+
+            const bubblesHtml = entries.map(([id, m]) => {
+                const pos = positions[id];
+                return `<div class="matriz-bubble absolute w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md border-2 border-white cursor-grab active:cursor-grabbing transition-transform hover:scale-110"
+                    style="background:${m.palancaHex}; left:${pos.left}%; top:${pos.top}%; transform: translate(-50%, -50%); z-index:10;"
+                    data-id="${id}" title="${m.nombre}">${m.numero}</div>`;
+            }).join('');
+
+            wrapper.innerHTML = `
+                <div class="absolute left-0 top-0 bottom-7 w-7 flex items-center justify-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide whitespace-nowrap" style="writing-mode: vertical-rl; transform: rotate(180deg);">Impacto (1→5)</span>
+                </div>
+                <div class="absolute left-7 right-0 bottom-0 h-7 flex items-center justify-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Complejidad (1→5)</span>
+                </div>
+                <div class="absolute left-7 top-0 right-0 bottom-7 rounded-xl border border-stone-300 overflow-hidden" id="matrizPlotArea">
+                    <div class="absolute inset-0 grid grid-cols-2 grid-rows-2">
+                        <div class="bg-blue-50 relative"><span class="absolute top-1.5 left-2 text-[9px] font-bold uppercase tracking-wide text-alpina-blue">Quick Wins</span></div>
+                        <div class="bg-green-50 relative"><span class="absolute top-1.5 right-2 text-[9px] font-bold uppercase tracking-wide text-green-600">Apuestas Estratégicas</span></div>
+                        <div class="bg-stone-50 relative"><span class="absolute bottom-1.5 left-2 text-[9px] font-bold uppercase tracking-wide text-slate-400">Oportunidades Menores</span></div>
+                        <div class="bg-amber-50 relative"><span class="absolute bottom-1.5 right-2 text-[9px] font-bold uppercase tracking-wide text-amber-600">Reconsiderar</span></div>
+                    </div>
+                    <div class="absolute inset-0 pointer-events-none">${cellLines}</div>
+                    ${bubblesHtml}
+                </div>
+            `;
+
+            attachMatrizDragHandlers();
+            lucide.createIcons();
+        }
+
+        function attachMatrizDragHandlers() {
+            const plotArea = document.getElementById('matrizPlotArea');
+            plotArea.querySelectorAll('.matriz-bubble').forEach(el => {
+                el.addEventListener('mousedown', (e) => { matrizDraggingEl = el; e.preventDefault(); });
+                el.addEventListener('touchstart', (e) => { matrizDraggingEl = el; }, { passive: true });
+            });
+        }
+
+        function matrizOnMove(e) {
+            if (!matrizDraggingEl) return;
+            const plotArea = document.getElementById('matrizPlotArea');
+            if (!plotArea) return;
+            const rect = plotArea.getBoundingClientRect();
+            const point = e.touches ? e.touches[0] : e;
+            let leftPct = ((point.clientX - rect.left) / rect.width) * 100;
+            let topPct = ((point.clientY - rect.top) / rect.height) * 100;
+            leftPct = Math.max(1, Math.min(99, leftPct));
+            topPct = Math.max(1, Math.min(99, topPct));
+            matrizDraggingEl.style.left = leftPct + '%';
+            matrizDraggingEl.style.top = topPct + '%';
+
+            const id = matrizDraggingEl.getAttribute('data-id');
+            const complejidad = Math.min(5, Math.max(1, Math.ceil(leftPct / 20)));
+            const impacto = Math.min(5, Math.max(1, 6 - Math.ceil(topPct / 20)));
+            if (matrizData[id]) {
+                matrizData[id].complejidad = complejidad;
+                matrizData[id].impacto = impacto;
+            }
+        }
+
+        function matrizEndDrag() {
+            if (!matrizDraggingEl) return;
+            matrizDraggingEl = null;
+            saveMatrizToStorage();
+            renderMatrizPriorizacion();
+        }
+
+        document.addEventListener('mousemove', matrizOnMove);
+        document.addEventListener('touchmove', (e) => { if (matrizDraggingEl) { matrizOnMove(e); } }, { passive: true });
+        document.addEventListener('mouseup', matrizEndDrag);
+        document.addEventListener('touchend', matrizEndDrag);
+
+        function openMatrizPriorizacion() {
+            hideAllViews();
+            viewMatrizPriorizacion.classList.remove('hidden');
+            window.scrollTo(0, 0);
+            if (!matrizData) buildMatrizData();
+            renderMatrizPriorizacion();
+        }
+
+        function downloadMatrizPDF(evt) {
+            const target = document.getElementById('matrizPdfArea');
+            const btn = evt ? evt.currentTarget : null;
+            if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+
+            html2canvas(target, { scale: 2, backgroundColor: '#ffffff', useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                pdf.setFontSize(18);
+                pdf.setTextColor(30, 41, 89);
+                pdf.text('Matriz de Priorización — Estrategia Comercial', 30, 35);
+                pdf.setFontSize(10);
+                pdf.setTextColor(100, 116, 139);
+                pdf.text('Impacto vs. Complejidad (escala 1-5)', 30, 50);
+
+                const imgProps = pdf.getImageProperties(imgData);
+                const availableWidth = pageWidth - 60;
+                const availableHeight = pageHeight - 90;
+                const ratio = Math.min(availableWidth / imgProps.width, availableHeight / imgProps.height);
+                const w = imgProps.width * ratio;
+                const h = imgProps.height * ratio;
+                pdf.addImage(imgData, 'PNG', (pageWidth - w) / 2, 65, w, h);
+                pdf.save('matriz-priorizacion-alpina.pdf');
+
+                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+            }).catch(err => {
+                console.error('Error generando PDF:', err);
+                if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+                alert('Hubo un problema generando el PDF. Intenta de nuevo.');
+            });
+        }
+
+    </script>
+</body>
+</html>
